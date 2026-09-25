@@ -1,6 +1,6 @@
 # npm vs pnpm Benchmark
 
-Compare npm and pnpm performance on your Mac.
+Compare npm and pnpm install performance.
 
 ## 🎯 npm vs pnpm - What's the Difference?
 
@@ -34,16 +34,12 @@ Project B: [node_modules]
 
 ## 📊 Benchmark Results (Mac M2, 8GB RAM)
 
-| Operation | npm | pnpm | Why pnpm wins |
-|-----------|-----|------|---------------|
-| **Install (small)** | 29.1s | 0.4s | No duplicate downloads |
-| **Install (medium)** | 2.5s | 0.3s | Uses hard links |
-| **Build (small)** | 1.2s | 1.0s | Faster file access |
-| **Build (medium)** | 1.0s | 0.4s | Less memory pressure |
-| **Lint (small)** | 0.7s | 0.4s | Quicker file loading |
-| **Lint (medium)** | 0.6s | 0.6s | Similar performance |
+| Project | npm | pnpm | Speedup |
+|---------|-----|------|---------|
+| **small-app** | 29.1s | 0.4s | **73x faster** |
+| **medium-app** | 2.5s | 0.3s | **8x faster** |
 
-**Key insight**: pnpm is dramatically faster for installs (up to 73x faster) because it doesn't download duplicate packages.
+**Why pnpm wins**: No duplicate downloads - uses shared package store
 
 ## 🚀 Quick Start
 
@@ -51,13 +47,8 @@ Project B: [node_modules]
 # Install dependencies
 npm install
 
-# Run all benchmarks (install + build + lint)
-npm run benchmark:all
-
-# Run individual benchmarks
-npm run benchmark:install
-npm run benchmark:build  
-npm run benchmark:lint
+# Run benchmark
+npm run benchmark
 ```
 
 ## 💡 Why Use pnpm?
@@ -70,9 +61,9 @@ npm run benchmark:lint
 
 ## 📋 What This Measures
 
-- **Install**: Time to download and install dependencies
-- **Build**: Time to compile/build projects  
-- **Lint**: Time to analyze code quality
+**Install speed only** - this is the key differentiator between npm and pnpm.
+
+Build and lint performance don't depend on the package manager - they depend on the build tool, linter, and your code.
 
 ## ⚙️ System Requirements
 

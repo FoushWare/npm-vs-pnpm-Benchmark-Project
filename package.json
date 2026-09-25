@@ -7,13 +7,8 @@
     "node": ">=22.21.1"
   },
   "scripts": {
-    "benchmark:all": "node scripts/run-all-benchmarks.js",
-    "benchmark:install": "node scripts/benchmark.js --scenario install --low-memory",
-    "benchmark:build": "node scripts/benchmark.js --scenario build --low-memory",
-    "benchmark:lint": "node scripts/benchmark.js --scenario lint --low-memory",
-    "benchmark:low-memory": "node scripts/benchmark.js --package-manager both --low-memory",
-    "benchmark:report": "node scripts/generate-report.js",
-    "benchmark:charts": "node scripts/generate-charts.js"
+    "benchmark": "node scripts/run-all-benchmarks.js",
+    "benchmark:install": "node scripts/benchmark.js --scenario install --low-memory"
   },
   "keywords": [
     "benchmark",
