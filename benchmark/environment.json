@@ -1,0 +1,13 @@
+{
+  "node": "v22.21.1",
+  "npm": "10.9.4",
+  "pnpm": "10.33.0",
+  "os": "darwin",
+  "osRelease": "25.6.0",
+  "cpu": "Apple M2",
+  "memory": "8 GB",
+  "storage": "SSD",
+  "architecture": "arm64",
+  "timestamp": "2026-09-25T17:21:15.111Z",
+  "hostname": "ahmeds-MacBook-Pro.local"
+}

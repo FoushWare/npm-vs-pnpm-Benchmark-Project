@@ -1,0 +1,94 @@
+name: npm Benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        project: [small-app, medium-app, large-app, frontend-react, frontend-next, node-api, monorepo]
+        scenario: [cold, warm, no-deps-changed]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.21.1'
+        cache: 'npm'
+    
+    - name: Install benchmark dependencies
+      run: npm install
+    
+    - name: Collect environment
+      run: npm run benchmark:environment
+    
+    - name: Clean project
+      run: |
+        cd projects/${{ matrix.project }}
+        rm -rf node_modules package-lock.json
+    
+    - name: Cold CI scenario
+      if: matrix.scenario == 'cold'
+      id: cold
+      run: |
+        START_TIME=$(date +%s%N)
+        cd projects/${{ matrix.project }}
+        npm ci
+        npm run build
+        npm run test -- --run
+        END_TIME=$(date +%s%N)
+        DURATION=$((($END_TIME - $START_TIME) / 1000000))
+        echo "duration=$DURATION" >> $GITHUB_OUTPUT
+    
+    - name: Warm CI scenario
+      if: matrix.scenario == 'warm'
+      id: warm
+      run: |
+        START_TIME=$(date +%s%N)
+        cd projects/${{ matrix.project }}
+        npm install
+        npm run build
+        npm run test -- --run
+        END_TIME=$(date +%s%N)
+        DURATION=$((($END_TIME - $START_TIME) / 1000000))
+        echo "duration=$DURATION" >> $GITHUB_OUTPUT
+    
+    - name: No dependency changes scenario
+      if: matrix.scenario == 'no-deps-changed'
+      id: no-deps
+      run: |
+        START_TIME=$(date +%s%N)
+        cd projects/${{ matrix.project }}
+        npm run build
+        npm run test -- --run
+        END_TIME=$(date +%s%N)
+        DURATION=$((($END_TIME - $START_TIME) / 1000000))
+        echo "duration=$DURATION" >> $GITHUB_OUTPUT
+    
+    - name: Monorepo scenario
+      if: matrix.project == 'monorepo'
+      id: monorepo
+      run: |
+        START_TIME=$(date +%s%N)
+        cd projects/monorepo
+        npm install
+        npm run build
+        END_TIME=$(date +%s%N)
+        DURATION=$((($END_TIME - $START_TIME) / 1000000))
+        echo "duration=$DURATION" >> $GITHUB_OUTPUT
+    
+    - name: Upload results
+      uses: actions/upload-artifact@v4
+      with:
+        name: npm-results-${{ matrix.project }}-${{ matrix.scenario }}
+        path: results/

@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Benchmark results (generated data)
+results/
+
+# Generated test projects (can be regenerated)
+projects/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build output
+dist/
+build/
+out/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+.temp/
