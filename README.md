@@ -47,8 +47,14 @@ Project B: [node_modules]
 # Install dependencies
 npm install
 
-# Run benchmark
+# Run benchmark and see results
 npm run benchmark
+
+# Or run install benchmark only
+npm run benchmark:install
+
+# Show latest results
+npm run results
 ```
 
 ## 💡 Why Use pnpm?

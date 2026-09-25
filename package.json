@@ -8,7 +8,8 @@
   },
   "scripts": {
     "benchmark": "node scripts/run-all-benchmarks.js",
-    "benchmark:install": "node scripts/benchmark.js --scenario install --low-memory"
+    "benchmark:install": "node scripts/benchmark.js --scenario install --low-memory",
+    "results": "node scripts/show-results.js"
   },
   "keywords": [
     "benchmark",

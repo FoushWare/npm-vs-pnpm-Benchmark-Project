@@ -25,5 +25,15 @@ try {
 
 console.log(chalk.blue.bold('=== Benchmark Completed ==='));
 console.log();
-console.log(chalk.yellow('Results saved to: results/raw/'));
-console.log(chalk.yellow('Install speed is the key differentiator between npm and pnpm'));
+console.log(chalk.yellow('Showing results...'));
+console.log();
+
+// Show the results
+try {
+  execSync(`node scripts/show-results.js`, {
+    cwd: process.cwd(),
+    stdio: 'inherit'
+  });
+} catch (error) {
+  console.log(chalk.red(`Could not show results: ${error.message}`));
+}
