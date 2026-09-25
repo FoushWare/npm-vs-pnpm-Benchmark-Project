@@ -3,16 +3,25 @@ import { measureTime } from '../../scripts/measure-time.js';
 import { getNodeModulesSize } from '../../scripts/measure-disk.js';
 import { join } from 'path';
 
-export async function runInstallBenchmark(projectPath, packageManager, clean = false, warm = false) {
-  const installCmd = packageManager === 'npm' 
+export async function runInstallBenchmark(projectPath, packageManager, clean = false, warm = false, lowMemory = false) {
+  let installCmd = packageManager === 'npm' 
     ? 'npm install' 
     : 'pnpm install';
+  
+  // Add low-memory optimizations
+  if (lowMemory) {
+    if (packageManager === 'npm') {
+      installCmd += ' --prefer-offline --no-audit --no-fund';
+    } else {
+      installCmd += ' --prefer-offline';
+    }
+  }
   
   const result = await measureTime(async () => {
     execSync(installCmd, { 
       cwd: projectPath, 
       stdio: 'pipe',
-      timeout: 300000 // 5 minute timeout
+      timeout: lowMemory ? 600000 : 300000 // Longer timeout for low-memory mode
     });
   });
 
@@ -25,7 +34,8 @@ export async function runInstallBenchmark(projectPath, packageManager, clean = f
     diskUsageBytes: diskUsage.totalBytes,
     diskUsageMB: diskUsage.totalMB,
     clean,
-    warm
+    warm,
+    lowMemory
   };
 }
 

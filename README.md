@@ -16,6 +16,7 @@ This benchmark system provides objective, data-driven comparisons between npm an
 - **Statistical Analysis**: Multiple runs with min, max, avg, median, and standard deviation
 - **Visual Reports**: Generate charts and detailed markdown reports
 - **Environment Tracking**: Capture and document all system specifications
+- **Low-Memory Mode**: Optimized configuration for systems with 8GB RAM or less
 
 ## 🚀 Quick Start
 
@@ -24,6 +25,8 @@ This benchmark system provides objective, data-driven comparisons between npm an
 - Node.js >= 22.21.1
 - npm >= 9.0.0
 - pnpm >= 8.0.0
+- **Recommended**: 16GB+ RAM for full benchmarks
+- **Minimum**: 8GB RAM with low-memory mode
 
 ### Installation
 
@@ -46,6 +49,9 @@ npm run benchmark:both
 npm run benchmark:npm
 npm run benchmark:pnpm
 
+# 🚀 Low-memory mode (optimized for 8GB RAM systems)
+npm run benchmark:low-memory
+
 # Run specific scenarios
 node scripts/benchmark.js --scenario install
 node scripts/benchmark.js --scenario build
@@ -65,6 +71,28 @@ node scripts/benchmark.js --warm
 
 # Mass project benchmark
 node scripts/benchmark.js --scenario mass --mass-count 100
+```
+
+### Low-Memory Mode
+
+For systems with limited RAM (8GB or less), use the low-memory mode:
+
+```bash
+npm run benchmark:low-memory
+```
+
+**Low-memory optimizations:**
+- Reduced project count (2 representative projects)
+- Single run per benchmark
+- Focused on install scenario (most critical comparison)
+- Reduced mass projects count (10 instead of 100)
+- Extended timeouts for slow operations
+- Recovery delays between operations
+- Optimized package manager flags for reduced overhead
+
+**Manual low-memory configuration:**
+```bash
+node scripts/benchmark.js --package-manager both --low-memory
 ```
 
 ### Generating Reports

@@ -3,6 +3,7 @@ node_modules/
 
 # Benchmark results (generated data)
 results/
+benchmark/
 
 # Generated test projects (can be regenerated)
 projects/
@@ -31,8 +32,8 @@ Thumbs.db
 
 # Build output
 dist/
-build/
 out/
+/built/
 
 # Coverage
 coverage/

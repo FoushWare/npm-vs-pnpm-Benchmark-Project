@@ -30,6 +30,9 @@ program
   .option('--mass-count <number>', 'Number of projects for mass benchmark', '100')
   .option('--scenario <type>', 'Benchmark scenario (install, build, test, lint, mass, migration, all)', 'all')
   .option('--validate', 'Run validation mode', false)
+  .option('--low-memory', 'Enable low-memory mode for 8GB RAM systems', false)
+  .option('--max-memory <number>', 'Max memory in MB per process (default: auto)', '0')
+  .option('--sequential', 'Run benchmarks sequentially instead of parallel', false)
   .parse(process.argv);
 
 const options = program.opts();
@@ -54,25 +57,36 @@ async function runBenchmark(project, packageManager, scenario, runNumber) {
   const spinner = ora(`Running ${scenario} benchmark for ${project} with ${packageManager} (run ${runNumber})`).start();
 
   try {
+    // Force garbage collection before each benchmark in low-memory mode
+    if (options.lowMemory && global.gc) {
+      global.gc();
+    }
+
     let result;
     switch (scenario) {
       case 'install':
-        result = await runInstallBenchmark(projectPath, packageManager, options.clean, options.warm);
+        result = await runInstallBenchmark(projectPath, packageManager, options.clean, options.warm, options.lowMemory);
         break;
       case 'build':
-        result = await runBuildBenchmark(projectPath, packageManager);
+        result = await runBuildBenchmark(projectPath, packageManager, options.lowMemory);
         break;
       case 'test':
-        result = await runTestBenchmark(projectPath, packageManager);
+        result = await runTestBenchmark(projectPath, packageManager, options.lowMemory);
         break;
       case 'lint':
-        result = await runLintBenchmark(projectPath, packageManager);
+        result = await runLintBenchmark(projectPath, packageManager, options.lowMemory);
         break;
       default:
         throw new Error(`Unknown scenario: ${scenario}`);
     }
 
     spinner.succeed(`${scenario} completed in ${result.durationMs.toFixed(2)}ms`);
+    
+    // Force garbage collection after each benchmark in low-memory mode
+    if (options.lowMemory && global.gc) {
+      global.gc();
+    }
+    
     return result;
   } catch (error) {
     spinner.fail(`${scenario} failed: ${error.message}`);
@@ -90,10 +104,40 @@ async function main() {
   execSync('node scripts/collect-environment.js', { cwd: process.cwd(), stdio: 'inherit' });
   envSpinner.succeed('Environment information collected');
 
-  const projects = options.projects.split(',');
-  const packageManagers = options.packageManager === 'both' ? ['npm', 'pnpm'] : [options.packageManager];
-  const runs = parseInt(options.runs);
-  const scenarios = options.scenario === 'all' ? ['install', 'build', 'test', 'lint'] : [options.scenario];
+  // Apply low-memory configuration
+  let projects = options.projects.split(',');
+  let packageManagers = options.packageManager === 'both' ? ['npm', 'pnpm'] : [options.packageManager];
+  let runs = parseInt(options.runs);
+  let scenarios = options.scenario === 'all' ? ['install', 'build', 'test', 'lint'] : [options.scenario];
+  let massCount = parseInt(options.massCount);
+
+  if (options.lowMemory) {
+    console.log(chalk.yellow.bold('⚠️  Low-memory mode enabled - optimizing for 8GB RAM'));
+    console.log();
+    
+    // Reduce project count to just 2 representative projects
+    projects = ['small-app', 'medium-app'];
+    
+    // Reduce runs to 1 for quick testing
+    runs = 1;
+    
+    // Focus on install scenario only (most critical)
+    scenarios = ['install'];
+    
+    // Dramatically reduce mass projects count
+    massCount = 10;
+    
+    // Force sequential execution
+    options.sequential = true;
+    
+    console.log(chalk.yellow('Low-memory optimizations applied:'));
+    console.log(chalk.yellow(`  - Projects: ${projects.join(', ')}`));
+    console.log(chalk.yellow(`  - Runs: ${runs}`));
+    console.log(chalk.yellow(`  - Scenarios: ${scenarios.join(', ')}`));
+    console.log(chalk.yellow(`  - Mass projects: ${massCount}`));
+    console.log(chalk.yellow(`  - Sequential execution: enabled`));
+    console.log();
+  }
 
   console.log(chalk.yellow(`Projects: ${projects.join(', ')}`));
   console.log(chalk.yellow(`Package Managers: ${packageManagers.join(', ')}`));
@@ -128,15 +172,26 @@ async function main() {
             ...result,
             timestamp: new Date().toISOString()
           });
+          
+          // Add delay between runs in low-memory mode to allow system to recover
+          if (options.lowMemory && run < runs) {
+            console.log(chalk.gray('Waiting 2 seconds for system recovery...'));
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
         }
+      }
+      
+      // Add delay between projects in low-memory mode
+      if (options.lowMemory) {
+        console.log(chalk.gray('Waiting 3 seconds for system recovery between projects...'));
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
     }
   }
 
   // Handle mass projects benchmark
   if (options.scenario === 'mass' || options.scenario === 'all') {
-    const massSpinner = ora('Running mass projects benchmark...').start();
-    const massCount = parseInt(options.massCount);
+    const massSpinner = ora(`Running mass projects benchmark (${massCount} projects)...`).start();
     
     for (const packageManager of packageManagers) {
       const massResult = await runMassProjectsBenchmark(packageManager, massCount);

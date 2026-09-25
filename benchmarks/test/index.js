@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import { measureTime } from '../../scripts/measure-time.js';
 
-export async function runTestBenchmark(projectPath, packageManager) {
+export async function runTestBenchmark(projectPath, packageManager, lowMemory = false) {
   const testCmd = packageManager === 'npm' 
     ? 'npm run test -- --run' 
     : 'pnpm run test -- --run';
@@ -10,13 +10,14 @@ export async function runTestBenchmark(projectPath, packageManager) {
     execSync(testCmd, { 
       cwd: projectPath, 
       stdio: 'pipe',
-      timeout: 300000
+      timeout: lowMemory ? 600000 : 300000
     });
   });
 
   return {
     durationMs: result.durationMs,
     success: result.success,
-    error: result.error
+    error: result.error,
+    lowMemory
   };
 }

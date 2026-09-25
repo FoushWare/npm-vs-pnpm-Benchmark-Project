@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import { measureTime } from '../../scripts/measure-time.js';
 
-export async function runLintBenchmark(projectPath, packageManager) {
+export async function runLintBenchmark(projectPath, packageManager, lowMemory = false) {
   const lintCmd = packageManager === 'npm' 
     ? 'npm run lint' 
     : 'pnpm run lint';
@@ -11,7 +11,7 @@ export async function runLintBenchmark(projectPath, packageManager) {
       execSync(lintCmd, { 
         cwd: projectPath, 
         stdio: 'pipe',
-        timeout: 300000
+        timeout: lowMemory ? 600000 : 300000
       });
     } catch (error) {
       // Lint might fail due to linting errors, but we still want to measure time
@@ -25,6 +25,7 @@ export async function runLintBenchmark(projectPath, packageManager) {
   return {
     durationMs: result.durationMs,
     success: true, // Always successful for timing purposes
-    error: result.error
+    error: result.error,
+    lowMemory
   };
 }

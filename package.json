@@ -10,6 +10,7 @@
     "benchmark:npm": "node scripts/benchmark.js --package-manager npm",
     "benchmark:pnpm": "node scripts/benchmark.js --package-manager pnpm",
     "benchmark:both": "node scripts/benchmark.js --package-manager both",
+    "benchmark:low-memory": "node scripts/benchmark.js --package-manager both --low-memory",
     "benchmark:clean": "node scripts/benchmark.js --clean",
     "benchmark:warm": "node scripts/benchmark.js --warm",
     "benchmark:ci": "node scripts/benchmark.js --ci",
