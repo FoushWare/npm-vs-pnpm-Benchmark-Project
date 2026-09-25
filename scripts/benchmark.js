@@ -121,8 +121,11 @@ async function main() {
     // Reduce runs to 1 for quick testing
     runs = 1;
     
-    // Focus on install scenario only (most critical)
-    scenarios = ['install'];
+    // If user didn't specify scenarios, use install only (most critical)
+    // But if they explicitly requested scenarios, respect that
+    if (options.scenario === 'all') {
+      scenarios = ['install'];
+    }
     
     // Dramatically reduce mass projects count
     massCount = 10;

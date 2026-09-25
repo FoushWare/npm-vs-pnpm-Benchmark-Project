@@ -7,19 +7,13 @@
     "node": ">=22.21.1"
   },
   "scripts": {
-    "benchmark:npm": "node scripts/benchmark.js --package-manager npm",
-    "benchmark:pnpm": "node scripts/benchmark.js --package-manager pnpm",
-    "benchmark:both": "node scripts/benchmark.js --package-manager both",
+    "benchmark:all": "node scripts/run-all-benchmarks.js",
+    "benchmark:install": "node scripts/benchmark.js --scenario install --low-memory",
+    "benchmark:build": "node scripts/benchmark.js --scenario build --low-memory",
+    "benchmark:lint": "node scripts/benchmark.js --scenario lint --low-memory",
     "benchmark:low-memory": "node scripts/benchmark.js --package-manager both --low-memory",
-    "benchmark:clean": "node scripts/benchmark.js --clean",
-    "benchmark:warm": "node scripts/benchmark.js --warm",
-    "benchmark:ci": "node scripts/benchmark.js --ci",
-    "benchmark:mass": "node scripts/benchmark.js --mass",
     "benchmark:report": "node scripts/generate-report.js",
-    "benchmark:charts": "node scripts/generate-charts.js",
-    "benchmark:environment": "node scripts/collect-environment.js",
-    "benchmark:validate": "node scripts/benchmark.js --validate",
-    "generate:projects": "node scripts/generate-projects.js"
+    "benchmark:charts": "node scripts/generate-charts.js"
   },
   "keywords": [
     "benchmark",

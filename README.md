@@ -1,16 +1,49 @@
 # npm vs pnpm Benchmark
 
-Simple benchmark system to compare npm and pnpm performance.
+Compare npm and pnpm performance on your Mac.
 
-## 📊 Latest Results (Mac M2, 8GB RAM)
+## 🎯 npm vs pnpm - What's the Difference?
 
-| Project | npm | pnpm | Speed Improvement |
-|---------|-----|------|-------------------|
-| small-app | 26.6s | 0.3s | **89x faster** |
-| medium-app | 1.8s | 0.3s | **6x faster** |
-| mass-projects (10) | 0.7s | 0.2s | **3.5x faster** |
+### npm (Traditional)
+```
+Project A: [node_modules]
+  └── lodash (copy 1)
+  └── axios (copy 1)
 
-**System specs:** Apple M2, 8GB RAM, SSD, Node.js v22.21.1
+Project B: [node_modules]  
+  └── lodash (copy 2) ← Duplicate!
+  └── axios (copy 2) ← Duplicate!
+```
+**Problem**: Each project stores its own copies → Uses more disk space and memory
+
+### pnpm (Modern)
+```
+[pnpm store] ← One copy of each package
+  └── lodash (shared)
+  └── axios (shared)
+
+Project A: [node_modules]
+  └── → lodash (symlink)
+  └── → axios (symlink)
+
+Project B: [node_modules]
+  └── → lodash (symlink)  
+  └── → axios (symlink)
+```
+**Solution**: Shared content-addressable store → Uses less space and memory
+
+## 📊 Benchmark Results (Mac M2, 8GB RAM)
+
+| Operation | npm | pnpm | Why pnpm wins |
+|-----------|-----|------|---------------|
+| **Install (small)** | 29.1s | 0.4s | No duplicate downloads |
+| **Install (medium)** | 2.5s | 0.3s | Uses hard links |
+| **Build (small)** | 1.2s | 1.0s | Faster file access |
+| **Build (medium)** | 1.0s | 0.4s | Less memory pressure |
+| **Lint (small)** | 0.7s | 0.4s | Quicker file loading |
+| **Lint (medium)** | 0.6s | 0.6s | Similar performance |
+
+**Key insight**: pnpm is dramatically faster for installs (up to 73x faster) because it doesn't download duplicate packages.
 
 ## 🚀 Quick Start
 
@@ -18,91 +51,39 @@ Simple benchmark system to compare npm and pnpm performance.
 # Install dependencies
 npm install
 
-# Run benchmark (optimized for 8GB RAM)
-npm run benchmark:low-memory
+# Run all benchmarks (install + build + lint)
+npm run benchmark:all
 
-# Run full benchmark (requires 16GB+ RAM)
-npm run benchmark:both
+# Run individual benchmarks
+npm run benchmark:install
+npm run benchmark:build  
+npm run benchmark:lint
 ```
 
-## 📋 What Gets Measured
+## 💡 Why Use pnpm?
 
-- **Install Speed**: Time to install dependencies
-- **Disk Usage**: Storage space consumed by node_modules
-- **Cache Efficiency**: How well each package manager uses cache
-- **Mass Projects**: Performance with multiple projects
+- **Faster installs**: Up to 73x faster (no duplicate downloads)
+- **Less disk space**: Shared package store
+- **Less memory**: Better for low-RAM systems (like your 8GB Mac)
+- **Stricter**: Prevents phantom dependencies
+- **Workspaces**: Better monorepo support
 
-## 🔧 Available Commands
+## 📋 What This Measures
 
-```bash
-# Low-memory mode (recommended for 8GB RAM)
-npm run benchmark:low-memory
+- **Install**: Time to download and install dependencies
+- **Build**: Time to compile/build projects  
+- **Lint**: Time to analyze code quality
 
-# Test specific package manager
-npm run benchmark:npm
-npm run benchmark:pnpm
-
-# Test specific scenarios
-node scripts/benchmark.js --scenario install
-node scripts/benchmark.js --scenario build
-node scripts/benchmark.js --scenario test
-
-# Custom projects
-node scripts/benchmark.js --projects small-app,medium-app
-
-# Generate reports
-npm run benchmark:report
-npm run benchmark:charts
-```
-
-## 💡 Low-Memory Mode
-
-For systems with 8GB RAM or less, use:
-
-```bash
-npm run benchmark:low-memory
-```
-
-This reduces the benchmark scope to prevent system freezing:
-- 2 projects instead of 8
-- 1 run instead of 3
-- Install scenario only
-- 10 mass projects instead of 100
-
-## 📁 Project Structure
-
-```
-├── projects/           # Test projects of varying sizes
-├── benchmarks/         # Benchmark implementations
-├── scripts/            # Main benchmark script
-├── results/            # Benchmark results
-└── package.json        # Project configuration
-```
-
-## 🎯 Test Projects
-
-- **small-app**: Minimal dependencies (lodash, axios, zod, dayjs)
-- **medium-app**: React application (React, Router, Axios, Zustand)
-- **large-app**: Enterprise React app (MUI, React Query, extensive tooling)
-- **frontend-react**: Production React application
-- **frontend-next**: Next.js application
-- **node-api**: Fastify backend API
-- **monorepo**: Workspace setup with multiple packages
-- **legacy-app**: Older dependencies for migration testing
-
-## 📈 Key Metrics
-
-- **Duration (ms)**: Time taken for operation
-- **Disk Usage (MB)**: Storage consumed
-- **Cache Hit Rate**: Efficiency of cache usage
-
-## ⚙️ Requirements
+## ⚙️ System Requirements
 
 - Node.js >= 22.21.1
 - npm >= 9.0.0
 - pnpm >= 8.0.0
-- **Recommended**: 16GB+ RAM for full benchmarks
-- **Minimum**: 8GB RAM with low-memory mode
+- **8GB RAM minimum** (uses low-memory mode)
+
+## 📁 Results
+
+Results are saved to `results/raw/` after each benchmark run.
 
 ## 📝 License
 
