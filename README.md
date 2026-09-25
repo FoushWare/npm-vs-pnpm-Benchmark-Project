@@ -1,8 +1,10 @@
-# npm vs pnpm Benchmark
+# npm vs pnpm Install Benchmark
 
-Compare npm and pnpm install performance.
+Educational benchmark comparing npm and pnpm install performance.
 
-## 🎯 npm vs pnpm - What's the Difference?
+## 🎯 Why Focus on Install Speed?
+
+npm and pnpm differ most significantly in how they install packages:
 
 ### npm (Traditional)
 ```
@@ -14,7 +16,7 @@ Project B: [node_modules]
   └── lodash (copy 2) ← Duplicate!
   └── axios (copy 2) ← Duplicate!
 ```
-**Problem**: Each project stores its own copies → Uses more disk space and memory
+**Problem**: Each project stores its own copies → Slower installs, more disk space
 
 ### pnpm (Modern)
 ```
@@ -23,23 +25,23 @@ Project B: [node_modules]
   └── axios (shared)
 
 Project A: [node_modules]
-  └── → lodash (symlink)
-  └── → axios (symlink)
+  └── → lodash (hard link)
+  └── → axios (hard link)
 
 Project B: [node_modules]
-  └── → lodash (symlink)  
-  └── → axios (symlink)
+  └── → lodash (hard link)  
+  └── → axios (hard link)
 ```
-**Solution**: Shared content-addressable store → Uses less space and memory
+**Solution**: Shared content-addressable store → Faster installs, less disk space
 
 ## 📊 Benchmark Results (Mac M2, 8GB RAM)
 
-| Project | npm | pnpm | Speedup |
-|---------|-----|------|---------|
-| **small-app** | 29.1s | 0.4s | **73x faster** |
-| **medium-app** | 2.5s | 0.3s | **8x faster** |
+| Project | npm (mean) | pnpm (mean) | Speedup |
+|---------|-----------|-------------|---------|
+| **small-app** | 28.1s | 0.3s | **85x faster** |
+| **medium-app** | 1.8s | 0.3s | **6x faster** |
 
-**Why pnpm wins**: No duplicate downloads - uses shared package store
+**Why pnpm wins**: Content-addressable storage with hard links eliminates duplicate downloads and file copying.
 
 ## 🚀 Quick Start
 
@@ -47,29 +49,42 @@ Project B: [node_modules]
 # Install dependencies
 npm install
 
-# Run benchmark and see results
+# Run benchmark (low-memory mode for 8GB RAM)
 npm run benchmark
 
-# Or run install benchmark only
-npm run benchmark:install
+# Run full benchmark (requires 16GB+ RAM)
+npm run benchmark:full
 
-# Show latest results
+# Show latest results with statistics
 npm run results
 ```
 
-## 💡 Why Use pnpm?
+## � Educational Concepts
 
-- **Faster installs**: Up to 73x faster (no duplicate downloads)
-- **Less disk space**: Shared package store
-- **Less memory**: Better for low-RAM systems (like your 8GB Mac)
-- **Stricter**: Prevents phantom dependencies
-- **Workspaces**: Better monorepo support
+This benchmark teaches several important computer science concepts:
 
-## 📋 What This Measures
+- **Content-addressable storage**: Storing files by content hash instead of location
+- **Hard links**: Multiple directory entries pointing to the same data on disk
+- **Statistical analysis**: Using mean, median, and standard deviation for reliable measurements
+- **Cache efficiency**: How package managers avoid redundant downloads
+- **Resource management**: Memory and CPU optimization for constrained systems
 
-**Install speed only** - this is the key differentiator between npm and pnpm.
+## 💡 Why Install Speed Matters
 
-Build and lint performance don't depend on the package manager - they depend on the build tool, linter, and your code.
+Build and lint performance don't depend on the package manager - they measure your build tools and code quality. Install speed is the key differentiator because:
+
+1. **Development workflow**: Faster installs = faster onboarding and dependency updates
+2. **CI/CD pipelines**: Install time directly affects deployment speed
+3. **Resource usage**: pnpm's efficient storage reduces memory and disk pressure
+4. **Scalability**: Shared storage scales better with many projects
+
+## 🔬 Benchmark Features
+
+- **Statistical rigor**: Multiple runs with warm-up for reliable data
+- **Low-memory mode**: Optimized for 8GB RAM systems
+- **Incremental saving**: Results saved as they run (survives crashes)
+- **Educational comments**: Code explanations for learning
+- **Flexible configuration**: Customizable for different scenarios
 
 ## ⚙️ System Requirements
 
@@ -77,10 +92,11 @@ Build and lint performance don't depend on the package manager - they depend on 
 - npm >= 9.0.0
 - pnpm >= 8.0.0
 - **8GB RAM minimum** (uses low-memory mode)
+- **16GB RAM recommended** for full benchmarks
 
 ## 📁 Results
 
-Results are saved to `results/raw/` after each benchmark run.
+Results are saved to `results/raw/` with statistical analysis (mean, median, standard deviation).
 
 ## 📝 License
 

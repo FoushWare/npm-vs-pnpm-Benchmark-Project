@@ -1,17 +1,22 @@
 #!/usr/bin/env node
 
+/**
+ * Simple wrapper to run the install benchmark and show results.
+ * This provides an easy entry point for students and users.
+ */
+
 import { execSync } from 'child_process';
 import chalk from 'chalk';
 
-console.log(chalk.blue.bold('=== Running npm vs pnpm Benchmark ==='));
+console.log(chalk.blue.bold('=== Running npm vs pnpm Install Benchmark ==='));
 console.log();
-
-// Focus on what actually matters: install speed and disk usage
-console.log(chalk.yellow.bold('--- Install Speed Benchmark ---'));
+console.log(chalk.gray('This benchmark measures install speed, which is the key'));
+console.log(chalk.gray('differentiator between npm and pnpm due to their different'));
+console.log(chalk.gray('package storage strategies.'));
 console.log();
 
 try {
-  execSync(`node scripts/benchmark.js --scenario install --low-memory`, {
+  execSync(`node scripts/benchmark.js --low-memory`, {
     cwd: process.cwd(),
     stdio: 'inherit'
   });

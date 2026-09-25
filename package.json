@@ -7,8 +7,9 @@
     "node": ">=22.21.1"
   },
   "scripts": {
-    "benchmark": "node scripts/run-all-benchmarks.js",
+    "benchmark": "node scripts/benchmark.js --low-memory",
     "benchmark:install": "node scripts/benchmark.js --scenario install --low-memory",
+    "benchmark:full": "node scripts/benchmark.js",
     "results": "node scripts/show-results.js"
   },
   "keywords": [

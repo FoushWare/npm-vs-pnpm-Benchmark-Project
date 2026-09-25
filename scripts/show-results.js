@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+/**
+ * Display benchmark results in a clear, educational format.
+ * This script reads the latest benchmark results and presents them
+ * with statistical measures and explanations.
+ */
+
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import chalk from 'chalk';
@@ -17,64 +23,75 @@ console.log();
 console.log(chalk.gray(`Results from: ${latestFile}`));
 console.log();
 
-// Group results by project and scenario
-const grouped = {};
-results.forEach(result => {
-  const key = `${result.project}-${result.scenario}`;
-  if (!grouped[key]) {
-    grouped[key] = {};
-  }
-  if (!grouped[key][result.packageManager]) {
-    grouped[key][result.packageManager] = [];
-  }
-  grouped[key][result.packageManager].push(result);
-});
-
-// Display install results (the main comparison)
-console.log(chalk.yellow.bold('📊 Install Speed Comparison'));
-console.log();
-
+// Focus on install results (the key differentiator)
 const installResults = results.filter(r => r.scenario === 'install' && r.project !== 'mass-projects');
 const projects = [...new Set(installResults.map(r => r.project))];
 
-console.log(chalk.white('Project').padEnd(20) + chalk.white('npm').padEnd(15) + chalk.white('pnpm').padEnd(15) + chalk.white('Speedup'));
-console.log(chalk.gray('─'.repeat(65)));
+// Group by project and package manager for statistical analysis
+const grouped = {};
+installResults.forEach(result => {
+  const key = `${result.project}-${result.packageManager}`;
+  if (!grouped[key]) {
+    grouped[key] = [];
+  }
+  grouped[key].push(result.durationMs);
+});
+
+console.log(chalk.yellow.bold('📊 Install Speed Comparison (with statistics)'));
+console.log();
+console.log(chalk.white('Project').padEnd(20) + chalk.white('PM').padEnd(8) + chalk.white('Mean').padEnd(10) + chalk.white('Median').padEnd(10) + chalk.white('StdDev'));
+console.log(chalk.gray('─'.repeat(60)));
 
 projects.forEach(project => {
-  const npmResult = installResults.find(r => r.project === project && r.packageManager === 'npm');
-  const pnpmResult = installResults.find(r => r.project === project && r.packageManager === 'pnpm');
-  
-  if (npmResult && pnpmResult) {
-    const npmTime = (npmResult.durationMs / 1000).toFixed(1) + 's';
-    const pnpmTime = (pnpmResult.durationMs / 1000).toFixed(1) + 's';
-    const speedup = (npmResult.durationMs / pnpmResult.durationMs).toFixed(1) + 'x';
+  ['npm', 'pnpm'].forEach(pm => {
+    const key = `${project}-${pm}`;
+    const durations = grouped[key];
     
-    console.log(project.padEnd(20) + npmTime.padEnd(15) + pnpmTime.padEnd(15) + chalk.green(speedup));
-  }
+    if (durations && durations.length > 0) {
+      const sorted = [...durations].sort((a, b) => a - b);
+      const n = sorted.length;
+      const mean = sorted.reduce((a, b) => a + b, 0) / n;
+      const median = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+      const variance = sorted.reduce((sum, v) => sum + (v - mean) ** 2, 0) / n;
+      const stddev = Math.sqrt(variance);
+      
+      const meanSec = (mean / 1000).toFixed(2) + 's';
+      const medianSec = (median / 1000).toFixed(2) + 's';
+      const stddevSec = (stddev / 1000).toFixed(2) + 's';
+      
+      console.log(project.padEnd(20) + pm.padEnd(8) + meanSec.padEnd(10) + medianSec.padEnd(10) + stddevSec);
+    }
+  });
 });
 
 console.log();
 
-// Show disk usage if available
-const diskResults = installResults.filter(r => r.diskUsageMB);
-if (diskResults.length > 0) {
-  console.log(chalk.yellow.bold('💾 Disk Usage (node_modules)'));
-  console.log();
-  console.log(chalk.white('Project').padEnd(20) + chalk.white('Size'));
-  console.log(chalk.gray('─'.repeat(35)));
+// Calculate and display speedup
+console.log(chalk.yellow.bold('� Performance Improvement'));
+console.log();
+console.log(chalk.white('Project').padEnd(20) + chalk.white('Speedup'));
+console.log(chalk.gray('─'.repeat(30)));
+
+projects.forEach(project => {
+  const npmKey = `${project}-npm`;
+  const pnpmKey = `${project}-pnpm`;
+  const npmDurations = grouped[npmKey];
+  const pnpmDurations = grouped[pnpmKey];
   
-  projects.forEach(project => {
-    const npmResult = diskResults.find(r => r.project === project && r.packageManager === 'npm');
+  if (npmDurations && pnpmDurations && npmDurations.length > 0 && pnpmDurations.length > 0) {
+    const npmMean = npmDurations.reduce((a, b) => a + b, 0) / npmDurations.length;
+    const pnpmMean = pnpmDurations.reduce((a, b) => a + b, 0) / pnpmDurations.length;
+    const speedup = (npmMean / pnpmMean).toFixed(1) + 'x';
     
-    if (npmResult) {
-      const size = npmResult.diskUsageMB.toFixed(1) + ' MB';
-      console.log(project.padEnd(20) + size);
-    }
-  });
-  console.log();
-  console.log(chalk.gray('Note: pnpm uses symlinks, so node_modules size appears similar.'));
-  console.log(chalk.gray('The real disk savings come from pnpm\'s shared package store.'));
-  console.log();
-}
+    console.log(project.padEnd(20) + chalk.green(speedup));
+  }
+});
+
+console.log();
+console.log(chalk.gray('Statistical notes:'));
+console.log(chalk.gray('  - Mean: Average performance across all runs'));
+console.log(chalk.gray('  - Median: Middle value (less affected by outliers)'));
+console.log(chalk.gray('  - StdDev: Consistency measure (lower = more consistent)'));
+console.log();
 
 console.log(chalk.green.bold('✓ pnpm is dramatically faster for installs!'));
