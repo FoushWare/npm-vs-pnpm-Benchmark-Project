@@ -1,23 +1,39 @@
 {
   "name": "npm-vs-pnpm-benchmark",
   "version": "1.0.0",
-  "description": "Scientific benchmark system to compare npm vs pnpm performance",
+  "description": "Technical investigation benchmark comparing npm vs pnpm performance across multiple scenarios and project scales",
   "type": "module",
   "engines": {
     "node": ">=22.21.1"
   },
   "scripts": {
-    "benchmark": "node scripts/benchmark.js --low-memory",
-    "benchmark:install": "node scripts/benchmark.js --scenario install --low-memory",
+    "benchmark": "node scripts/benchmark.js",
+    "benchmark:install": "node scripts/benchmark.js --scenario install",
+    "benchmark:dev": "node scripts/benchmark.js --low-memory",
     "benchmark:full": "node scripts/benchmark.js",
-    "results": "node scripts/show-results.js"
+    "benchmark:mass": "node scripts/benchmark.js --mass",
+    "benchmark:mass:10": "node scripts/benchmark.js --mass --mass-count 10",
+    "benchmark:mass:100": "node scripts/benchmark.js --mass --mass-count 100",
+    "benchmark:mass:500": "node scripts/benchmark.js --mass --mass-count 500",
+    "generate:projects": "node scripts/generate-projects.js",
+    "generate:projects:10": "node scripts/generate-projects.js --count 10",
+    "generate:projects:100": "node scripts/generate-projects.js --count 100",
+    "generate:projects:500": "node scripts/generate-projects.js --count 500",
+    "migrate:to-pnpm": "node scripts/migrate-to-pnpm.js",
+    "ci:summary": "node scripts/generate-ci-summary.js results/ci",
+    "results": "node scripts/show-results.js",
+    "charts": "node scripts/generate-charts.js",
+    "charts:terminal": "node scripts/generate-terminal-charts.js",
+    "charts:browser": "node scripts/generate-browser-charts.js"
   },
   "keywords": [
     "benchmark",
     "npm",
     "pnpm",
     "performance",
-    "package-manager"
+    "package-manager",
+    "technical-investigation",
+    "migration-strategy"
   ],
   "author": "",
   "license": "MIT",

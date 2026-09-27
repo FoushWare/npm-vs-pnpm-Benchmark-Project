@@ -48,10 +48,12 @@ export async function runInstallBenchmark(projectPath, packageManager, clean = f
   }
   
   // Measure the installation time
+  // Use stdio: 'inherit' to show progress during installation
+  // This prevents the "hanging" appearance and lets users see real progress
   const result = await measureTime(async () => {
     execSync(installCmd, { 
       cwd: projectPath, 
-      stdio: 'pipe', // Suppress output during timing
+      stdio: 'inherit', // Show output to prevent "hanging" appearance
       timeout: lowMemory ? 600000 : 300000 // Longer timeout for low-memory mode
     });
   });
@@ -81,13 +83,13 @@ export async function runWarmInstallBenchmark(projectPath, packageManager) {
 }
 
 export async function runLockfileInstallBenchmark(projectPath, packageManager) {
-  const installCmd = packageManager === 'npm' 
-    ? 'npm ci' 
+  const installCmd = packageManager === 'npm'
+    ? 'npm ci'
     : 'pnpm install --frozen-lockfile';
-  
+
   const result = await measureTime(async () => {
-    execSync(installCmd, { 
-      cwd: projectPath, 
+    execSync(installCmd, {
+      cwd: projectPath,
       stdio: 'inherit',
       timeout: 300000
     });

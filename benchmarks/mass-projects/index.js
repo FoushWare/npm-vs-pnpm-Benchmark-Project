@@ -7,7 +7,11 @@ import { existsSync } from 'fs';
 
 export async function runMassProjectsBenchmark(packageManager, projectCount) {
   const massProjectsDir = join(process.cwd(), 'projects', 'mass-generated');
-  
+
+  console.log();
+  console.log(`📊 Testing ${projectCount} projects as representative of 2,000-project scenario`);
+  console.log(`   (Testing actual ${projectCount} projects to estimate 2,000-project behavior)`);
+
   // Generate mass projects if they don't exist
   let generationTimeMs = 0;
   if (!existsSync(join(massProjectsDir, 'package.json'))) {
@@ -22,10 +26,10 @@ export async function runMassProjectsBenchmark(packageManager, projectCount) {
   }
 
   // Install all projects
-  const installCmd = packageManager === 'npm' 
-    ? 'npm install' 
+  const installCmd = packageManager === 'npm'
+    ? 'npm install'
     : 'pnpm install';
-  
+
   const installResult = await measureTime(async () => {
     execSync(installCmd, {
       cwd: massProjectsDir,
@@ -36,7 +40,7 @@ export async function runMassProjectsBenchmark(packageManager, projectCount) {
 
   // Measure total disk usage
   const diskUsage = getDirectorySize(massProjectsDir);
-  
+
   // Measure cache size
   const cacheSize = getPackageCacheSize(packageManager);
 
