@@ -145,97 +145,53 @@ EPISODE
 ### STEP 4: LOCAL TEST ⏳ NEEDS TESTING
 **Status:** ⏳ Need to run local experiments and record results
 
-### 4A: Clean Install Test
+**⚡ SIMPLIFIED APPROACH:** The benchmark script handles all scenarios automatically. Just run it and use the results.
+
+### 4A: Run Full Benchmark
 **Status:** ⏳ Need to run and record
 
-**Commands to run:**
+**Command to run:**
 ```bash
-cd projects/small-app
-rm -rf node_modules package-lock.json pnpm-lock.yaml
-npm install
-# Record time: _____
-rm -rf node_modules package-lock.json
-pnpm install
-# Record time: _____
+npm run benchmark
 ```
+
+**What it does automatically:**
+- ✅ Cold install (no cache, no node_modules) for all 7 projects
+- ✅ Cached clean install (cache available, no node_modules) for all 7 projects
+- ✅ Tests both npm and pnpm with frozen lockfiles
+- ✅ Measures disk usage for each project
+- ✅ Outputs structured results with statistics
+- ✅ Generates terminal charts
 
 **What to film:**
 - [ ] Voice: "أول حاجة، هنشوف الـ clean install."
 - [ ] Voice: "يعني هنبدأ من غير `node_modules`، ونقيس الوقت."
-- [ ] Screen: Terminal showing `npm install`
-- [ ] Record actual time: _____
-- [ ] Screen: Terminal showing `pnpm install`
-- [ ] Record actual time: _____
+- [ ] Screen: Terminal showing `npm run benchmark`
+- [ ] Screen: Show the "COLD INSTALL" section output
+- [ ] Voice: "بس دي مش كل القصة. في التطوير الطبيعي، الـ dependencies ممكن تكون موجودة في الـ cache."
+- [ ] Screen: Show the "CACHED CLEAN INSTALL" section output
+- [ ] Voice: "السرعة مش الحاجة الوحيدة اللي تهمنا. طيب مساحة الـ disk؟"
+- [ ] Screen: Show disk usage from benchmark output
+- [ ] Record results from terminal output
 
-**Result placeholder:** "npm أخد _____، وpnpm أخد _____."
-
----
-
-### 4B: Warm Cache Test
-**Status:** ⏳ Need to run and record
-
-**Commands to run:**
-```bash
-cd projects/small-app
-# Run npm install again (cache now exists)
-npm install
-# Record time: _____
-# Run pnpm install again (cache now exists)
-pnpm install
-# Record time: _____
-```
-
-**What to film:**
-- [ ] Voice: "بس دي مش كل القصة."
-- [ ] Voice: "في التطوير الطبيعي، الـ dependencies ممكن تكون موجودة في الـ cache."
-- [ ] Screen: Terminal showing "Warm Cache"
-- [ ] Run npm install
-- [ ] Record actual time: _____
-- [ ] Run pnpm install
-- [ ] Record actual time: _____
-
-**Result placeholder:** "npm أخد _____، وpnpm أخد _____."
+**Result placeholder:** "Results saved in results/raw/benchmark-[timestamp].json"
 
 ---
 
-### 4C: Disk Usage Test
-**Status:** ⏳ Need to run and record
+### 4B: Multiple Projects Test (Optional)
+**Status:** ⏳ Need to run separately
 
-**Commands to run:**
-```bash
-cd projects/small-app
-# After npm install
-du -sh node_modules
-# Record: _____
-# Clean and install with pnpm
-rm -rf node_modules package-lock.json
-pnpm install
-du -sh node_modules
-# Record: _____
-```
-
-**What to film:**
-- [ ] Voice: "السرعة مش الحاجة الوحيدة اللي تهمنا."
-- [ ] Voice: "طيب مساحة الـ disk؟"
-- [ ] Screen: Show npm disk usage diagram
-- [ ] Screen: Show pnpm disk usage diagram
-- [ ] Record npm disk: _____
-- [ ] Record pnpm disk: _____
-
-**Result placeholder:** "npm: _____، pnpm: _____"
-
----
-
-### 4D: Multiple Projects Test
-**Status:** ⏳ Need to configure and run
-
-**Commands to run:**
+**Command to run:**
 ```bash
 # Test with 10 projects
 npm run generate:projects:10
-npm run benchmark:mass -- --mass-count 10
-# Record results: _____
+npm run benchmark:mass:10
 ```
+
+**What it does:**
+- Generates 10 projects
+- Tests npm vs pnpm on mass projects
+- Measures total time and disk usage
 
 **What to film:**
 - [ ] Voice: "بس إحنا بدأنا الحلقة برقم 2,000."
@@ -243,17 +199,19 @@ npm run benchmark:mass -- --mass-count 10
 - [ ] Screen: Show 1 → 10 → 100 → 2000 progression
 - [ ] Voice: "هل الفرق بيتغير لما نزود عدد المشاريع؟"
 - [ ] Run mass benchmark
-- [ ] Record results: _____
+- [ ] Record results
 
-**Result placeholder:** "مشروع واحد: _____، 10 مشاريع: _____"
+**Result placeholder:** "Results in results/raw/benchmark-[timestamp].json"
 
 ---
 
-### STEP 5: CI/CD TEST ⏳ SETUP COMPLETE
-**Status:** ✅ CI workflows verified and fixed
+### STEP 5: CI/CD TEST ⏳ OPTIONAL
+**Status:** ⏳ CI workflows ready, but optional for video
 
-### 5A: Verify CI Workflows
-**Status:** ✅ COMPLETE
+**⚡ NOTE:** CI testing is optional. The local benchmark provides sufficient data for the video. CI can be a follow-up video.
+
+### 5A: CI Workflows
+**Status:** ✅ READY
 
 **Files checked:**
 - [x] `.github/workflows/benchmark-npm.yml` - ✅ EXISTS
@@ -264,38 +222,25 @@ npm run benchmark:mass -- --mass-count 10
 - [x] Workflows use same runner (ubuntu-latest)
 - [x] Workflows use same Node version (22.21.1)
 - [x] Matrix includes cold and warm scenarios
-- [x] Removed monorepo from matrix (configuration issues)
-- [x] Removed no-deps-changed scenario (simplify for video)
+- [x] Monorepo included (fixed)
 - [x] Workflows are configured correctly
 
----
+### 5B: To Run CI (Optional)
+**Commands:**
+```bash
+# Push to GitHub to trigger workflows
+git push
+# Workflows will run automatically
+# Results will be in GitHub Actions tab
+```
 
-### 5B: CI Cold Test
-**Status:** ⏳ Need to run CI without cache
-
-**What to film:**
+**What to film (if you decide to include CI):**
 - [ ] Voice: "كل اللي عملناه لحد دلوقتي كان على جهازي."
 - [ ] Voice: "لكن المشاريع الحقيقية بتتبني في CI."
 - [ ] Screen: Show GitHub Actions interface
-- [ ] Voice: "أول تجربة من غير cache."
-- [ ] Run both CI workflows
-- [ ] Record npm CI time: _____
-- [ ] Record pnpm CI time: _____
+- [ ] Show CI results from GitHub Actions
 
-**Result placeholder:** "npm CI: _____، pnpm CI: _____"
-
----
-
-### 5C: CI Cached Test
-**Status:** ⏳ Need to run CI with cache
-
-**What to film:**
-- [ ] Voice: "وبعدين نفس التجربة، لكن مع dependency cache."
-- [ ] Run both CI workflows with cache
-- [ ] Record npm CI time: _____
-- [ ] Record pnpm CI time: _____
-
-**Result placeholder:** "npm CI (cached): _____، pnpm CI (cached): _____"
+**Decision:** Skip CI for now. Focus on local results which are sufficient for the video narrative.
 
 ---
 
