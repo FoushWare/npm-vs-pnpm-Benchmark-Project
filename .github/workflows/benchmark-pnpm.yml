@@ -24,7 +24,7 @@ jobs:
     
     strategy:
       matrix:
-        project: [small-app, medium-app, react-app, next-app, node-api, legacy-app]
+        project: [small-app, medium-app, react-app, next-app, node-api, monorepo, legacy-app]
         scenario: [cold, warm]
     
     steps:

@@ -44,10 +44,10 @@ EPISODE
 | **react-app** | ✅ Working | 13 deps (Full React + testing) | Large |
 | **next-app** | ✅ Working | 8 deps (Next.js framework) | Large |
 | **node-api** | ✅ Working | 6 deps (Fastify server) | Medium |
-| **monorepo** | ❌ Excluded | Workspace-based | Very Large |
+| **monorepo** | ✅ Working | Workspace-based (3 apps, 3 packages) | Very Large |
 | **legacy-app** | ✅ Working | 5 deps (Outdated packages) | Small |
 
-**Audit Note:** 6/7 projects work. Monorepo excluded due to npm workspace protocol incompatibility (npm doesn't support `workspace:*` protocol). This is a real-world complexity that can be mentioned in the video as a migration consideration.
+**Audit Note:** All 7 projects now work. Monorepo fixed by using `file:` protocol instead of `workspace:*` for cross-compatibility.
 
 #### ✅ Does npm work?
 
@@ -440,6 +440,7 @@ Generated lockfiles for all projects to enable frozen lockfile benchmarking:
 | react-app | ✅ package-lock.json | ✅ pnpm-lock.yaml | Ready |
 | next-app | ✅ package-lock.json | ✅ pnpm-lock.yaml | Ready |
 | node-api | ✅ package-lock.json | ✅ pnpm-lock.yaml | Ready |
+| monorepo | ✅ package-lock.json | ✅ pnpm-lock.yaml | Ready (fixed with file: protocol) |
 | legacy-app | ✅ package-lock.json | ✅ pnpm-lock.yaml | Ready |
 
 **Note:** medium-app npm install failed with dependency resolution error. This is a real issue that can be discussed in the video - it shows npm can have dependency resolution problems that pnpm doesn't have.
@@ -610,7 +611,7 @@ All 6 critical issues have been fixed:
 
 1. **medium-app npm install fails** with dependency resolution error. This is a real issue that can be discussed in the video - it shows npm can have dependency resolution problems that pnpm doesn't have.
 
-2. **monorepo excluded** - npm doesn't support `workspace:*` protocol used by pnpm workspaces. This is a real-world migration complexity. The video can mention this as: "Monorepo migrations require workspace protocol compatibility checks."
+2. **monorepo fixed** - Changed from `workspace:*` to `file:` protocol for cross-compatibility. Both npm and pnpm now work with the monorepo.
 
 ---
 

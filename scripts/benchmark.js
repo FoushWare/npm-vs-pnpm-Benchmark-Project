@@ -68,7 +68,7 @@ program
   .option(
     '--projects <names>',
     'Comma-separated list of projects to benchmark',
-    'small-app,medium-app,react-app,next-app,node-api,legacy-app'
+    'small-app,medium-app,react-app,next-app,node-api,monorepo,legacy-app'
   )
   .option('--runs <number>', 'Number of timed install runs per project/PM', '3')
   .option('--warmup-runs <number>', 'Untimed warm-up runs before the timed ones (discarded)', '0')
@@ -280,6 +280,13 @@ const PROJECT_SIZES = {
     complexity: 'Medium',
     techStack: 'Fastify + TypeScript',
     description: 'Server-side API with Fastify ecosystem'
+  },
+  'monorepo': {
+    size: 'Very Large',
+    dependencies: 'Workspace (3 apps, 3 packages)',
+    complexity: 'Very High',
+    techStack: 'Turborepo + Workspaces',
+    description: 'Multi-app monorepo with shared packages'
   },
   'legacy-app': {
     size: 'Small',
