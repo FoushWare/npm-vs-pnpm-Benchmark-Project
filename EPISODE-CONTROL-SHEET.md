@@ -44,10 +44,10 @@ EPISODE
 | **react-app** | ✅ Working | 13 deps (Full React + testing) | Large |
 | **next-app** | ✅ Working | 8 deps (Next.js framework) | Large |
 | **node-api** | ✅ Working | 6 deps (Fastify server) | Medium |
-| **monorepo** | ⚠️ Issues | Workspace-based | Very Large |
+| **monorepo** | ❌ Excluded | Workspace-based | Very Large |
 | **legacy-app** | ✅ Working | 5 deps (Outdated packages) | Small |
 
-**Audit Note:** 6/7 projects work. Monorepo has npm workspace configuration issues.
+**Audit Note:** 6/7 projects work. Monorepo excluded due to npm workspace protocol incompatibility (npm doesn't support `workspace:*` protocol). This is a real-world complexity that can be mentioned in the video as a migration consideration.
 
 #### ✅ Does npm work?
 
@@ -606,8 +606,11 @@ All 6 critical issues have been fixed:
 
 **Observation:** The corrected benchmark is working properly with frozen lockfiles. Results show pnpm is significantly faster in both cold and cached scenarios for small-app.
 
-### ⚠️ KNOWN ISSUE:
-**medium-app npm install fails** with dependency resolution error. This is a real issue that can be discussed in the video - it shows npm can have dependency resolution problems that pnpm doesn't have.
+### ⚠️ KNOWN ISSUES:
+
+1. **medium-app npm install fails** with dependency resolution error. This is a real issue that can be discussed in the video - it shows npm can have dependency resolution problems that pnpm doesn't have.
+
+2. **monorepo excluded** - npm doesn't support `workspace:*` protocol used by pnpm workspaces. This is a real-world migration complexity. The video can mention this as: "Monorepo migrations require workspace protocol compatibility checks."
 
 ---
 
