@@ -18,6 +18,12 @@ npm install
 
 ## Benchmark Steps
 
+### Quick Start (All Tests)
+```bash
+npm run benchmark:all
+```
+Runs all benchmarks for all projects and launches live charts.
+
 ### Step 1: Clean Everything
 ```bash
 npm run clean:all
@@ -34,22 +40,9 @@ npm run benchmark:cold:pnpm -- small-app --runs 3
 
 **Test all projects:**
 ```bash
-npm run benchmark:cold:npm -- small-app --runs 3
-npm run benchmark:cold:pnpm -- small-app --runs 3
-npm run benchmark:cold:npm -- medium-app --runs 3
-npm run benchmark:cold:pnpm -- medium-app --runs 3
-npm run benchmark:cold:npm -- react-app --runs 3
-npm run benchmark:cold:pnpm -- react-app --runs 3
-npm run benchmark:cold:npm -- next-app --runs 3
-npm run benchmark:cold:pnpm -- next-app --runs 3
-npm run benchmark:cold:npm -- node-api --runs 3
-npm run benchmark:cold:pnpm -- node-api --runs 3
-npm run benchmark:cold:npm -- legacy-app --runs 3
-npm run benchmark:cold:pnpm -- legacy-app --runs 3
-npm run benchmark:cold:pnpm -- monorepo --runs 3
+npm run benchmark:all:cold
 ```
-
-Tests package manager performance with no cache. Shows comparison charts after both tests.
+Tests cold install for all projects (npm and pnpm, monorepo pnpm only).
 
 ### Step 3: Test Warm Cache (With Cache)
 
@@ -61,22 +54,9 @@ npm run benchmark:warm:pnpm -- small-app --runs 3
 
 **Test all projects:**
 ```bash
-npm run benchmark:warm:npm -- small-app --runs 3
-npm run benchmark:warm:pnpm -- small-app --runs 3
-npm run benchmark:warm:npm -- medium-app --runs 3
-npm run benchmark:warm:pnpm -- medium-app --runs 3
-npm run benchmark:warm:npm -- react-app --runs 3
-npm run benchmark:warm:pnpm -- react-app --runs 3
-npm run benchmark:warm:npm -- next-app --runs 3
-npm run benchmark:warm:pnpm -- next-app --runs 3
-npm run benchmark:warm:npm -- node-api --runs 3
-npm run benchmark:warm:pnpm -- node-api --runs 3
-npm run benchmark:warm:npm -- legacy-app --runs 3
-npm run benchmark:warm:pnpm -- legacy-app --runs 3
-npm run benchmark:warm:pnpm -- monorepo --runs 3
+npm run benchmark:all:warm
 ```
-
-Tests package manager performance with cache populated. Shows comparison charts after both tests.
+Tests warm cache for all projects (npm and pnpm, monorepo pnpm only).
 
 ### Step 4: Check Disk Usage
 ```bash
@@ -97,14 +77,23 @@ Starts a local server at http://localhost:8080 with interactive charts.
 - `react-app` - Production React/testing ecosystem
 - `next-app` - Next.js framework
 - `node-api` - Fastify + TypeScript
-- `monorepo` - Workspace-style multi-package application (npm may have workspace limitations)
+- `monorepo` - Workspace-style multi-package application (pnpm only)
 - `legacy-app` - Older dependency patterns
 
-**Note:** The monorepo project may have npm workspace limitations. pnpm handles this configuration successfully.
+**Note:** The monorepo only works with pnpm due to workspace configuration limitations with npm.
 
 ## Additional Commands
 
 ```bash
+# Run all benchmarks (cold, warm, disk, charts)
+npm run benchmark:all
+
+# Run cold install for all projects
+npm run benchmark:all:cold
+
+# Run warm cache for all projects
+npm run benchmark:all:warm
+
 # Run full automated benchmark
 npm run benchmark
 
