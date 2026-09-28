@@ -19,6 +19,20 @@ const { runs } = program.opts();
 
 const projectPath = join(process.cwd(), 'projects', project);
 
+// Skip monorepo for npm due to workspace limitations
+if (project === 'monorepo') {
+  console.log(chalk.yellow.bold('🔥 WARM CACHE BENCHMARK - npm'));
+  console.log(chalk.yellow.bold('═'.repeat(60)));
+  console.log(chalk.yellow(`📁 Project: ${project}`));
+  console.log(chalk.yellow.bold('═'.repeat(60)));
+  console.log(chalk.red('⚠️  Skipping monorepo for npm'));
+  console.log(chalk.gray('   This monorepo configuration has workspace limitations with npm.'));
+  console.log(chalk.gray('   pnpm handles this configuration successfully.'));
+  console.log(chalk.gray('   Run: npm run benchmark:warm:pnpm -- monorepo'));
+  console.log();
+  process.exit(0);
+}
+
 console.log(chalk.yellow.bold('🔥 WARM CACHE BENCHMARK - npm'));
 console.log(chalk.yellow.bold('═'.repeat(60)));
 console.log(chalk.yellow(`📁 Project: ${project}`));

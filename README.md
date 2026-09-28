@@ -44,10 +44,9 @@ npm run benchmark:cold:npm -- next-app --runs 3
 npm run benchmark:cold:pnpm -- next-app --runs 3
 npm run benchmark:cold:npm -- node-api --runs 3
 npm run benchmark:cold:pnpm -- node-api --runs 3
-npm run benchmark:cold:npm -- monorepo --runs 3
-npm run benchmark:cold:pnpm -- monorepo --runs 3
 npm run benchmark:cold:npm -- legacy-app --runs 3
 npm run benchmark:cold:pnpm -- legacy-app --runs 3
+npm run benchmark:cold:pnpm -- monorepo --runs 3
 ```
 
 Tests package manager performance with no cache. Shows comparison charts after both tests.
@@ -72,10 +71,9 @@ npm run benchmark:warm:npm -- next-app --runs 3
 npm run benchmark:warm:pnpm -- next-app --runs 3
 npm run benchmark:warm:npm -- node-api --runs 3
 npm run benchmark:warm:pnpm -- node-api --runs 3
-npm run benchmark:warm:npm -- monorepo --runs 3
-npm run benchmark:warm:pnpm -- monorepo --runs 3
 npm run benchmark:warm:npm -- legacy-app --runs 3
 npm run benchmark:warm:pnpm -- legacy-app --runs 3
+npm run benchmark:warm:pnpm -- monorepo --runs 3
 ```
 
 Tests package manager performance with cache populated. Shows comparison charts after both tests.
