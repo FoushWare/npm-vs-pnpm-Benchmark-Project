@@ -1,7 +1,7 @@
 {
   "name": "npm-vs-pnpm-benchmark",
   "version": "1.0.0",
-  "description": "Technical investigation benchmark comparing npm vs pnpm performance across multiple scenarios and project scales",
+  "description": "Benchmark scripts comparing npm vs pnpm performance",
   "type": "module",
   "engines": {
     "node": ">=22.21.1"
@@ -11,6 +11,7 @@
     "benchmark:install": "node scripts/benchmark.js --scenario install",
     "benchmark:dev": "node scripts/benchmark.js --low-memory",
     "benchmark:full": "node scripts/benchmark.js",
+    "benchmark:live": "node scripts/benchmark.js --live-server",
     "benchmark:mass": "node scripts/benchmark.js --mass",
     "benchmark:mass:10": "node scripts/benchmark.js --mass --mass-count 10",
     "benchmark:mass:100": "node scripts/benchmark.js --mass --mass-count 100",
@@ -24,16 +25,21 @@
     "results": "node scripts/show-results.js",
     "charts": "node scripts/generate-charts.js",
     "charts:terminal": "node scripts/generate-terminal-charts.js",
-    "charts:browser": "node scripts/generate-browser-charts.js"
+    "charts:browser": "node scripts/generate-browser-charts.js",
+    "charts:live": "node scripts/generate-browser-charts.js --live-server",
+    "clean:all": "node scripts/clean-all.js",
+    "benchmark:cold:npm": "node scripts/benchmark-cold-npm.js",
+    "benchmark:cold:pnpm": "node scripts/benchmark-cold-pnpm.js",
+    "benchmark:warm:npm": "node scripts/benchmark-warm-npm.js",
+    "benchmark:warm:pnpm": "node scripts/benchmark-warm-pnpm.js",
+    "benchmark:disk": "node scripts/benchmark-disk.js"
   },
   "keywords": [
     "benchmark",
     "npm",
     "pnpm",
     "performance",
-    "package-manager",
-    "technical-investigation",
-    "migration-strategy"
+    "package-manager"
   ],
   "author": "",
   "license": "MIT",

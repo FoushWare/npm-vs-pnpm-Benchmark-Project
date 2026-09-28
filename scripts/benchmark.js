@@ -28,8 +28,9 @@ import { runMassProjectsBenchmark } from '../benchmarks/mass-projects/index.js';
 import { runMigrationBenchmark } from '../benchmarks/migration/index.js';
 import { clearPackageCache } from './measure-cache.js';
 import { spawn } from 'child_process';
-import { rmSync, existsSync, writeFileSync, mkdirSync } from 'fs';
+import { rmSync, existsSync, writeFileSync, mkdirSync, readFile } from 'fs';
 import { join } from 'path';
+import http from 'http';
 
 // ---------------------------------------------------------------------------
 // DESIGN PHILOSOPHY
@@ -82,6 +83,8 @@ program
   .option('--sequential', 'Run installs sequentially instead of in parallel', false)
   .option('--concurrency <number>', 'Max parallel installs (ignored with --sequential)', String(DEFAULT_CONCURRENCY))
   .option('--validate', 'Run validation mode', false)
+  .option('--live-server', 'Start live server with browser charts after benchmark', false)
+  .option('--port <number>', 'Port for live server', '8080')
   .parse(process.argv);
 
 const options = program.opts();
@@ -347,11 +350,20 @@ async function runInstall(project, packageManager, runNumber, isWarmup, scenario
     // Force garbage collection in low-memory mode to free up RAM
     if (options.lowMemory && global.gc) global.gc();
 
+    // Show detailed progress
+    console.log(chalk.gray('   📦 Installing packages...'));
+    console.log(chalk.gray('   ⏱️  Measuring time...'));
+
     // Use frozen lockfile install for fair comparison
     const result = await runLockfileInstallBenchmark(projectPath, packageManager);
 
     // Show completion message with timing
     console.log(chalk.green(`✅ ${label}: ${result.durationMs.toFixed(0)}ms`));
+
+    // Show disk usage
+    if (result.diskUsageMB) {
+      console.log(chalk.gray(`   💾 Disk usage: ${result.diskUsageMB.toFixed(1)}MB`));
+    }
 
     // Force garbage collection again after the operation
     if (options.lowMemory && global.gc) global.gc();
@@ -388,6 +400,7 @@ async function main() {
   console.log(chalk.yellow(`📦 Package Mgr:   ${packageManagers.join(', ')}`));
   console.log(chalk.yellow(`🔢 Timed Runs:    ${runs} (+ ${warmupRuns} warm-up, discarded)`));
   console.log(chalk.yellow(`🚀 Execution:     ${sequential ? 'Sequential' : `Parallel (concurrency: ${concurrency})`}`));
+  console.log(chalk.yellow(`🌐 Live Server:   ${options.liveServer ? `Port ${options.port}` : 'Disabled'}`));
   console.log(chalk.blue.bold('═'.repeat(60)));
   console.log();
 
@@ -689,6 +702,69 @@ async function main() {
   console.log();
   console.log(chalk.gray('💡 Tip: Run "npm run charts:browser" to generate interactive HTML charts'));
   console.log(chalk.blue.bold('═'.repeat(60)));
+
+  // Live server functionality
+  if (options.liveServer) {
+    console.log();
+    console.log(chalk.blue.bold('═'.repeat(60)));
+    console.log(chalk.blue.bold('🌐 STARTING LIVE SERVER'));
+    console.log(chalk.blue.bold('═'.repeat(60)));
+    console.log();
+
+    // Generate browser charts first
+    console.log(chalk.blue('⏳  Generating browser charts...'));
+    try {
+      await runCommandAsync('node', ['scripts/generate-browser-charts.js'], { cwd: process.cwd() });
+      console.log(chalk.green('✅ Browser charts generated'));
+    } catch (error) {
+      console.log(chalk.yellow('⚠️  Browser chart generation failed (optional feature)'));
+    }
+
+    // Start simple HTTP server
+    const fs = await import('fs');
+
+    const PORT = parseInt(options.port, 10);
+    const chartsPath = join(process.cwd(), 'results', 'charts', 'benchmark-results.html');
+
+    const server = http.createServer((req, res) => {
+      if (req.url === '/' || req.url === '/index.html') {
+        readFile(chartsPath, (err, data) => {
+          if (err) {
+            res.writeHead(404);
+            res.end('File not found');
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(data);
+        });
+      } else {
+        res.writeHead(404);
+        res.end('Not found');
+      }
+    });
+
+    server.listen(PORT, () => {
+      console.log();
+      console.log(chalk.green.bold('✅ Live server started!'));
+      console.log(chalk.yellow(`📱 Open in browser: http://localhost:${PORT}`));
+      console.log(chalk.gray('   Press Ctrl+C to stop the server'));
+      console.log();
+      console.log(chalk.blue.bold('═'.repeat(60)));
+    });
+
+    // Keep server running
+    console.log(chalk.gray('Server is running. Press Ctrl+C to stop.'));
+
+    // Handle shutdown
+    process.on('SIGINT', () => {
+      console.log();
+      console.log(chalk.yellow('🛑 Shutting down server...'));
+      server.close(() => {
+        console.log(chalk.green('✅ Server stopped'));
+        process.exit(0);
+      });
+    });
+  }
 
   if (options.validate) {
     console.log(chalk.blue('Running validation...'));

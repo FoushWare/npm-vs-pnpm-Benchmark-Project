@@ -2,16 +2,21 @@
 
 /**
  * Browser Chart Generator
- * 
+ *
  * This script generates interactive HTML charts using Chart.js that can be
  * opened in a web browser for interactive exploration of benchmark results.
  */
 
-import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'fs';
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, readFile } from 'fs';
 import { join } from 'path';
+import { createServer } from 'http';
 
 const resultsDir = join(process.cwd(), 'results', 'raw');
 const chartsDir = join(process.cwd(), 'results', 'charts');
+
+// Check for --live-server flag
+const isLiveServer = process.argv.includes('--live-server');
+const PORT = 8080;
 
 function loadResults() {
   const files = readdirSync(resultsDir).filter(f => f.endsWith('.json'));
@@ -353,10 +358,49 @@ async function main() {
   mkdirSync(chartsDir, { recursive: true });
   const htmlFile = join(chartsDir, 'benchmark-results.html');
   writeFileSync(htmlFile, html);
-  
+
   console.log('✅ Interactive HTML chart generated!');
   console.log(`📁 File: ${htmlFile}`);
   console.log('🌐 Open this file in your browser to view interactive charts');
+
+  // Start live server if requested
+  if (isLiveServer) {
+    console.log();
+    console.log('🌐 Starting live server...');
+
+    const server = createServer((req, res) => {
+      if (req.url === '/' || req.url === '/index.html') {
+        readFileSync(htmlFile, (err, data) => {
+          if (err) {
+            res.writeHead(404);
+            res.end('File not found');
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(data);
+        });
+      } else {
+        res.writeHead(404);
+        res.end('Not found');
+      }
+    });
+
+    server.listen(PORT, () => {
+      console.log();
+      console.log('✅ Live server started!');
+      console.log(`📱 Open in browser: http://localhost:${PORT}`);
+      console.log('   Press Ctrl+C to stop the server');
+    });
+
+    process.on('SIGINT', () => {
+      console.log();
+      console.log('🛑 Shutting down server...');
+      server.close(() => {
+        console.log('✅ Server stopped');
+        process.exit(0);
+      });
+    });
+  }
 }
 
 try {
