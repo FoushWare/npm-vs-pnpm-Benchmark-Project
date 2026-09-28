@@ -10,13 +10,17 @@
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, readFile } from 'fs';
 import { join } from 'path';
 import { createServer } from 'http';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const resultsDir = join(process.cwd(), 'results', 'manual');
 const chartsDir = join(process.cwd(), 'results', 'charts');
 
 // Check for --live-server flag
 const isLiveServer = process.argv.includes('--live-server');
-const PORT = 8080;
+const PORT = process.argv.includes('--port') ? parseInt(process.argv[process.argv.indexOf('--port') + 1]) : 8080;
 
 function loadResults() {
   const files = readdirSync(resultsDir).filter(f => f.endsWith('.json'));
@@ -471,15 +475,14 @@ async function main() {
 
     const server = createServer((req, res) => {
       if (req.url === '/' || req.url === '/index.html') {
-        readFileSync(htmlFile, (err, data) => {
-          if (err) {
-            res.writeHead(404);
-            res.end('File not found');
-            return;
-          }
+        try {
+          const data = readFileSync(htmlFile, 'utf8');
           res.writeHead(200, { 'Content-Type': 'text/html' });
           res.end(data);
-        });
+        } catch (err) {
+          res.writeHead(500);
+          res.end('Error reading file');
+        }
       } else {
         res.writeHead(404);
         res.end('Not found');
@@ -491,6 +494,16 @@ async function main() {
       console.log('✅ Live server started!');
       console.log(`📱 Open in browser: http://localhost:${PORT}`);
       console.log('   Press Ctrl+C to stop the server');
+    }).on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.log(`⚠️  Port ${PORT} is already in use. Try killing the process or use a different port:`);
+        console.log(`   lsof -ti:${PORT} | xargs kill -9`);
+        console.log(`   npm run charts:live -- --port 3000`);
+        process.exit(1);
+      } else {
+        console.error('Server error:', err);
+        process.exit(1);
+      }
     });
 
     process.on('SIGINT', () => {

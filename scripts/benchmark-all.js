@@ -55,6 +55,13 @@ console.log(chalk.cyan('🌐 Starting live server with charts...'));
 console.log();
 
 try {
+  // Kill any existing process on port 8080
+  try {
+    execSync('lsof -ti:8080 | xargs kill -9 2>/dev/null || true', { stdio: 'ignore' });
+  } catch (error) {
+    // Ignore if no process found
+  }
+  
   execSync('npm run charts:live', { stdio: 'inherit' });
 } catch (error) {
   console.log(chalk.red('❌ Live server failed'));
