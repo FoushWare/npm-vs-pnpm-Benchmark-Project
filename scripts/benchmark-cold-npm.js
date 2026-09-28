@@ -64,6 +64,7 @@ for (let i = 1; i <= runs; i++) {
     console.log(chalk.gray(`   💾 Disk: ${diskMB}MB`));
   } catch (error) {
     console.log(chalk.red(`   ❌ Run ${i} failed: ${error.message}`));
+    console.log(chalk.gray(`   💡 Tip: For workspaces, npm may have limitations. pnpm is recommended for monorepos.`));
   }
 }
 

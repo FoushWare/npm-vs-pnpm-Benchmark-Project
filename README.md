@@ -99,8 +99,10 @@ Starts a local server at http://localhost:8080 with interactive charts.
 - `react-app` - Production React/testing ecosystem
 - `next-app` - Next.js framework
 - `node-api` - Fastify + TypeScript
-- `monorepo` - Workspace-style multi-package application
+- `monorepo` - Workspace-style multi-package application (npm may have workspace limitations)
 - `legacy-app` - Older dependency patterns
+
+**Note:** The monorepo project may have npm workspace limitations. pnpm handles this configuration successfully.
 
 ## Additional Commands
 

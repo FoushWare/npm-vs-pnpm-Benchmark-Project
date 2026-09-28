@@ -44,15 +44,17 @@ for (let i = 1; i <= runs; i++) {
   console.log(chalk.gray('   ✅ Clean state ready'));
 
   // Use npm ci if lockfile exists, otherwise npm install
+  // Fall back to npm install if npm ci fails (common with workspaces)
+  let command = 'npm install';
   if (existsSync(packageLockPath)) {
     console.log(chalk.gray('   📦 Running npm ci (with frozen lockfile)...'));
+    command = 'npm ci';
   } else {
     console.log(chalk.gray('   📦 Running npm install (generating lockfile)...'));
   }
 
   const start = Date.now();
   try {
-    const command = existsSync(packageLockPath) ? 'npm ci' : 'npm install';
     execSync(command, { cwd: projectPath, stdio: 'inherit', timeout: 300000 });
     const duration = Date.now() - start;
     durations.push(duration);
@@ -65,7 +67,28 @@ for (let i = 1; i <= runs; i++) {
     totalDiskMB = parseFloat(diskMB);
     console.log(chalk.gray(`   💾 Disk: ${diskMB}MB`));
   } catch (error) {
-    console.log(chalk.red(`   ❌ Run ${i} failed: ${error.message}`));
+    // If npm ci fails, try npm install as fallback
+    if (command === 'npm ci') {
+      console.log(chalk.yellow(`   ⚠️  npm ci failed, trying npm install...`));
+      try {
+        const start2 = Date.now();
+        execSync('npm install', { cwd: projectPath, stdio: 'inherit', timeout: 300000 });
+        const duration = Date.now() - start2;
+        durations.push(duration);
+        console.log(chalk.green(`   ✅ Run ${i}: ${duration}ms (npm install)`));
+
+        // Measure disk usage
+        const duResult = execSync(`du -sk ${join(projectPath, 'node_modules')}`, { encoding: 'utf8' });
+        const diskKB = parseInt(duResult.trim().split('\t')[0]);
+        const diskMB = (diskKB / 1024).toFixed(1);
+        totalDiskMB = parseFloat(diskMB);
+        console.log(chalk.gray(`   💾 Disk: ${diskMB}MB`));
+      } catch (error2) {
+        console.log(chalk.red(`   ❌ Run ${i} failed: ${error2.message}`));
+      }
+    } else {
+      console.log(chalk.red(`   ❌ Run ${i} failed: ${error.message}`));
+    }
   }
 }
 
