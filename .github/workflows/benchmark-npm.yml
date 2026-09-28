@@ -6,7 +6,7 @@
 # - Same runner type (ubuntu-latest)
 # - Same Node.js version (22.21.1)
 # - Equivalent cache strategies (npm cache vs pnpm store)
-# - Identical test scenarios (cold, warm, no-deps-changed)
+# - Identical test scenarios (cold, warm)
 # ============================================================================
 
 name: npm Benchmark
@@ -14,9 +14,9 @@ name: npm Benchmark
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   benchmark:
@@ -24,7 +24,7 @@ jobs:
     
     strategy:
       matrix:
-        project: [small-app, medium-app, react-app, next-app, node-api, monorepo, legacy-app]
+        project: [small-app, medium-app, react-app, next-app, node-api, legacy-app]
         scenario: [cold, warm]
     
     steps:
@@ -41,60 +41,25 @@ jobs:
     - name: Install benchmark dependencies
       run: npm install
     
-    - name: Collect environment
-      run: npm run benchmark:environment
+    - name: Install pnpm (for comparison workflow)
+      run: npm install -g pnpm
     
-    # Fair comparison: Start from clean state for both package managers
-    - name: Clean project
-      run: |
-        cd projects/${{ matrix.project }}
-        rm -rf node_modules package-lock.json
+    # Fair comparison: Clean all caches and node_modules
+    - name: Clean everything
+      run: npm run clean:all
     
     # Fair comparison: Cold scenario tests fresh installation with no cache
     - name: Cold CI scenario
       if: matrix.scenario == 'cold'
-      id: cold
-      run: |
-        START_TIME=$(date +%s%N)
-        cd projects/${{ matrix.project }}
-        rm -rf node_modules
-        npm ci
-        npm run build
-        npm run test -- --run
-        END_TIME=$(date +%s%N)
-        DURATION=$((($END_TIME - $START_TIME) / 1000000))
-        echo "duration=$DURATION" >> $GITHUB_OUTPUT
-
+      run: npm run benchmark:cold:npm -- ${{ matrix.project }} --runs 3
+    
     # Fair comparison: Warm scenario tests installation with cache present
     - name: Warm CI scenario
       if: matrix.scenario == 'warm'
-      id: warm
-      run: |
-        START_TIME=$(date +%s%N)
-        cd projects/${{ matrix.project }}
-        rm -rf node_modules
-        npm ci
-        npm run build
-        npm run test -- --run
-        END_TIME=$(date +%s%N)
-        DURATION=$((($END_TIME - $START_TIME) / 1000000))
-        echo "duration=$DURATION" >> $GITHUB_OUTPUT
-    
-    # Fair comparison: No-deps scenario skips installation (cache hit)
-    - name: No dependency changes scenario
-      if: matrix.scenario == 'no-deps-changed'
-      id: no-deps
-      run: |
-        START_TIME=$(date +%s%N)
-        cd projects/${{ matrix.project }}
-        npm run build
-        npm run test -- --run
-        END_TIME=$(date +%s%N)
-        DURATION=$((($END_TIME - $START_TIME) / 1000000))
-        echo "duration=$DURATION" >> $GITHUB_OUTPUT
+      run: npm run benchmark:warm:npm -- ${{ matrix.project }} --runs 3
     
     - name: Upload results
       uses: actions/upload-artifact@v4
       with:
         name: npm-results-${{ matrix.project }}-${{ matrix.scenario }}
-        path: results/
+        path: results/manual/
