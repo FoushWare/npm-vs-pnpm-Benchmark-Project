@@ -2,7 +2,8 @@
 # Benchmark Comparison Workflow
 # ============================================================================
 # This workflow runs both npm and pnpm benchmarks and generates a comparison
-# report. It uses the same fair comparison rules as the individual workflows.
+# report. Tests both cold and warm scenarios in the same job to simulate
+# local cache behavior.
 # ============================================================================
 
 name: Benchmark Comparison
@@ -42,7 +43,7 @@ jobs:
     - name: Install pnpm
       run: npm install -g pnpm
     
-    - name: Download npm results
+    - name: Download all results
       uses: actions/download-artifact@v4
       with:
         path: results/ci

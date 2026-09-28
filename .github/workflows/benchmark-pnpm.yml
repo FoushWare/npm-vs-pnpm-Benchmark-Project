@@ -2,11 +2,8 @@
 # pnpm Benchmark Workflow
 # ============================================================================
 # This workflow benchmarks pnpm performance under fair conditions for comparison
-# with npm. Both workflows follow strict equivalence rules:
-# - Same runner type (ubuntu-latest)
-# - Same Node.js version (22.21.1)
-# - Equivalent cache strategies (npm cache vs pnpm store)
-# - Identical test scenarios (cold, warm)
+# with npm. Tests both cold and warm scenarios in the same job to simulate
+# local cache behavior.
 # ============================================================================
 
 name: pnpm Benchmark
@@ -25,7 +22,6 @@ jobs:
     strategy:
       matrix:
         project: [small-app, medium-app, react-app, next-app, node-api, legacy-app, monorepo]
-        scenario: [cold, warm]
     
     steps:
     - name: Checkout code
@@ -63,7 +59,7 @@ jobs:
     - name: Install pnpm (for benchmark scripts)
       run: npm install -g pnpm
     
-    # Fair comparison: Clean all caches and node_modules
+    # Fair comparison: Clean all caches and node_modules for cold test
     - name: Clean everything
       run: |
         npm cache clean --force || true
@@ -73,18 +69,16 @@ jobs:
     
     # Fair comparison: Cold scenario tests fresh installation with no cache
     - name: Cold CI scenario
-      if: matrix.scenario == 'cold'
-      run: npm run ci:benchmark:pnpm ${{ matrix.project }} cold 3
+      run: npm run ci:benchmark:pnpm ${{ matrix.project }} cold 1
       continue-on-error: true
     
-    # Fair comparison: Warm scenario tests installation with cache present
+    # Fair comparison: Warm scenario tests installation with cache (same job)
     - name: Warm CI scenario
-      if: matrix.scenario == 'warm'
-      run: npm run ci:benchmark:pnpm ${{ matrix.project }} warm 3
+      run: npm run ci:benchmark:pnpm ${{ matrix.project }} warm 1
       continue-on-error: true
     
     - name: Upload results
       uses: actions/upload-artifact@v4
       with:
-        name: pnpm-results-${{ matrix.project }}-${{ matrix.scenario }}
-        path: results/manual/
+        name: pnpm-results-${{ matrix.project }}
+        path: results/ci/

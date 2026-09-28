@@ -6,7 +6,7 @@ import { join } from 'path';
 
 const project = process.argv[2];
 const scenario = process.argv[3] || 'cold';
-const runs = parseInt(process.argv[4]) || 3;
+const runs = parseInt(process.argv[4]) || 1;
 
 const projectPath = join(process.cwd(), 'projects', project);
 const resultsDir = join(process.cwd(), 'results', 'ci');
@@ -28,11 +28,7 @@ for (let i = 1; i <= runs; i++) {
   
   const start = Date.now();
   try {
-    if (scenario === 'cold') {
-      execSync('npm install', { cwd: projectPath, stdio: 'inherit' });
-    } else {
-      execSync('npm ci', { cwd: projectPath, stdio: 'inherit' });
-    }
+    execSync('npm install', { cwd: projectPath, stdio: 'inherit' });
     const duration = Date.now() - start;
     durations.push(duration);
     console.log(`✅ Run ${i}: ${duration}ms`);
