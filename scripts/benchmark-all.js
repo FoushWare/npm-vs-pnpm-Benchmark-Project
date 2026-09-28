@@ -62,7 +62,20 @@ try {
     // Ignore if no process found
   }
   
-  execSync('npm run charts:live', { stdio: 'inherit' });
+  // Start server in background
+  const { spawn } = require('child_process');
+  const server = spawn('npm', ['run', 'charts:live'], { 
+    stdio: 'inherit',
+    detached: true,
+    shell: true
+  });
+  
+  server.unref();
+  
+  console.log();
+  console.log(chalk.green('✅ Live server started!'));
+  console.log(chalk.cyan('📱 Open in browser: http://localhost:8080'));
+  console.log(chalk.gray('   Press Ctrl+C in the server terminal to stop'));
 } catch (error) {
   console.log(chalk.red('❌ Live server failed'));
   console.log(chalk.gray('Run: npm run charts:live to start the server manually'));

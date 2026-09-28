@@ -198,6 +198,19 @@ function generateHTML(coldLabels, npmColdData, pnpmColdData, warmLabels, npmWarm
             height: 20px;
             border-radius: 4px;
         }
+        .small {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .note {
+            color: #666;
+            font-size: 13px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -225,10 +238,12 @@ function generateHTML(coldLabels, npmColdData, pnpmColdData, warmLabels, npmWarm
             <div class="stat-card">
                 <h3>Average npm Time</h3>
                 <div class="value">${npmColdData.length ? (npmColdData.reduce((a,b) => a+b, 0) / npmColdData.length).toFixed(0) : 'N/A'}ms</div>
+                <div class="small">${npmColdData.length ? ((npmColdData.reduce((a,b) => a+b, 0) / npmColdData.length / 1000).toFixed(2) + 's') : ''}</div>
             </div>
             <div class="stat-card">
                 <h3>Average pnpm Time</h3>
                 <div class="value">${pnpmColdData.length ? (pnpmColdData.reduce((a,b) => a+b, 0) / pnpmColdData.length).toFixed(0) : 'N/A'}ms</div>
+                <div class="small">${pnpmColdData.length ? ((pnpmColdData.reduce((a,b) => a+b, 0) / pnpmColdData.length / 1000).toFixed(2) + 's') : ''}</div>
             </div>
             <div class="stat-card">
                 <h3>Speedup</h3>
@@ -239,6 +254,7 @@ function generateHTML(coldLabels, npmColdData, pnpmColdData, warmLabels, npmWarm
                 <div class="value">${npmColdData.length && pnpmColdData.length ? ((1 - pnpmColdData.reduce((a,b) => a+b, 0) / npmColdData.reduce((a,b) => a+b, 0)) * 100).toFixed(1) : 'N/A'}%</div>
             </div>
         </div>
+        <p class="note"><strong>Average Calculation:</strong> Mean of ${npmColdData.length} runs for npm, ${pnpmColdData.length} runs for pnpm</p>
         
         <h2>🔥 Warm Cache (With Cache)</h2>
         <div class="chart-container">
@@ -249,10 +265,12 @@ function generateHTML(coldLabels, npmColdData, pnpmColdData, warmLabels, npmWarm
             <div class="stat-card">
                 <h3>Average npm Time</h3>
                 <div class="value">${npmWarmData.length ? (npmWarmData.reduce((a,b) => a+b, 0) / npmWarmData.length).toFixed(0) : 'N/A'}ms</div>
+                <div class="small">${npmWarmData.length ? ((npmWarmData.reduce((a,b) => a+b, 0) / npmWarmData.length / 1000).toFixed(2) + 's') : ''}</div>
             </div>
             <div class="stat-card">
                 <h3>Average pnpm Time</h3>
                 <div class="value">${pnpmWarmData.length ? (pnpmWarmData.reduce((a,b) => a+b, 0) / pnpmWarmData.length).toFixed(0) : 'N/A'}ms</div>
+                <div class="small">${pnpmWarmData.length ? ((pnpmWarmData.reduce((a,b) => a+b, 0) / pnpmWarmData.length / 1000).toFixed(2) + 's') : ''}</div>
             </div>
             <div class="stat-card">
                 <h3>Speedup</h3>
@@ -263,6 +281,7 @@ function generateHTML(coldLabels, npmColdData, pnpmColdData, warmLabels, npmWarm
                 <div class="value">${npmWarmData.length && pnpmWarmData.length ? ((1 - pnpmWarmData.reduce((a,b) => a+b, 0) / npmWarmData.reduce((a,b) => a+b, 0)) * 100).toFixed(1) : 'N/A'}%</div>
             </div>
         </div>
+        <p class="note"><strong>Average Calculation:</strong> Mean of ${npmWarmData.length} runs for npm, ${pnpmWarmData.length} runs for pnpm</p>
         
         <h2>💾 Disk Usage</h2>
         <div class="chart-container">
@@ -303,6 +322,15 @@ function generateHTML(coldLabels, npmColdData, pnpmColdData, warmLabels, npmWarm
                     legend: {
                         display: true,
                         position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const seconds = (value / 1000).toFixed(2);
+                                return context.dataset.label + ': ' + value + 'ms (' + seconds + 's)';
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -311,6 +339,12 @@ function generateHTML(coldLabels, npmColdData, pnpmColdData, warmLabels, npmWarm
                         title: {
                             display: true,
                             text: 'Time (ms)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                const seconds = (value / 1000).toFixed(1);
+                                return value + 'ms (' + seconds + 's)';
+                            }
                         }
                     }
                 }
@@ -334,6 +368,15 @@ function generateHTML(coldLabels, npmColdData, pnpmColdData, warmLabels, npmWarm
                     legend: {
                         display: true,
                         position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const seconds = (value / 1000).toFixed(2);
+                                return context.dataset.label + ': ' + value + 'ms (' + seconds + 's)';
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -342,6 +385,12 @@ function generateHTML(coldLabels, npmColdData, pnpmColdData, warmLabels, npmWarm
                         title: {
                             display: true,
                             text: 'Time (ms)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                const seconds = (value / 1000).toFixed(1);
+                                return value + 'ms (' + seconds + 's)';
+                            }
                         }
                     }
                 }
