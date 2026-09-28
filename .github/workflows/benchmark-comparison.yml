@@ -45,15 +45,15 @@ jobs:
     - name: Download npm results
       uses: actions/download-artifact@v4
       with:
-        path: results/manual
+        path: results/ci
     
-    - name: Merge all results to manual directory
+    - name: Merge all results to ci directory
       run: |
-        mkdir -p results/manual
-        find results -name "*.json" -exec cp {} results/manual/ \; 2>/dev/null || true
+        mkdir -p results/ci
+        find results -name "*.json" -exec cp {} results/ci/ \; 2>/dev/null || true
     
     - name: Generate comparison charts
-      run: npm run charts:browser
+      run: npm run charts:browser -- --results-dir results/ci
     
     - name: Upload comparison
       uses: actions/upload-artifact@v4

@@ -35,7 +35,9 @@
     "benchmark:disk": "node scripts/benchmark-disk.js",
     "benchmark:all:cold": "node scripts/benchmark-all-cold.js",
     "benchmark:all:warm": "node scripts/benchmark-all-warm.js",
-    "benchmark:all": "node scripts/benchmark-all.js"
+    "benchmark:all": "node scripts/benchmark-all.js",
+    "ci:benchmark:npm": "node scripts/ci-benchmark-npm.js",
+    "ci:benchmark:pnpm": "node scripts/ci-benchmark-pnpm.js"
   },
   "keywords": [
     "benchmark",

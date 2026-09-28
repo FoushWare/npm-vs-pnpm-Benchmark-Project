@@ -15,7 +15,11 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const resultsDir = join(process.cwd(), 'results', 'manual');
+// Allow custom results directory via --results-dir flag
+const resultsDirIndex = process.argv.indexOf('--results-dir');
+const resultsDir = resultsDirIndex !== -1 
+  ? process.argv[resultsDirIndex + 1] 
+  : join(process.cwd(), 'results', 'manual');
 const chartsDir = join(process.cwd(), 'results', 'charts');
 
 // Check for --live-server flag

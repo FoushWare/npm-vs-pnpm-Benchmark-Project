@@ -46,17 +46,23 @@ jobs:
     
     # Fair comparison: Clean all caches and node_modules
     - name: Clean everything
-      run: npm run clean:all
+      run: |
+        npm cache clean --force || true
+        pnpm store prune || true
+        rm -rf projects/*/node_modules projects/*/package-lock.json projects/*/.pnpm
+      continue-on-error: true
     
     # Fair comparison: Cold scenario tests fresh installation with no cache
     - name: Cold CI scenario
       if: matrix.scenario == 'cold'
-      run: npm run benchmark:cold:npm -- ${{ matrix.project }} --runs 3
+      run: npm run ci:benchmark:npm ${{ matrix.project }} cold 3
+      continue-on-error: true
     
     # Fair comparison: Warm scenario tests installation with cache present
     - name: Warm CI scenario
       if: matrix.scenario == 'warm'
-      run: npm run benchmark:warm:npm -- ${{ matrix.project }} --runs 3
+      run: npm run ci:benchmark:npm ${{ matrix.project }} warm 3
+      continue-on-error: true
     
     - name: Upload results
       uses: actions/upload-artifact@v4
