@@ -38,7 +38,7 @@ jobs:
         node-version: '22.21.1'
 
     - name: Install benchmark dependencies
-      run: npm ci
+      run: npm install
 
     - name: Install pnpm
       run: npm install -g pnpm

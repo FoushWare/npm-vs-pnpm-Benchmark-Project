@@ -39,7 +39,7 @@ jobs:
         version: 8
 
     - name: Install benchmark dependencies
-      run: npm ci
+      run: npm install
 
     - name: Install pnpm (for benchmark scripts)
       run: npm install -g pnpm
