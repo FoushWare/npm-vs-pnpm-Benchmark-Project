@@ -1,0 +1,17 @@
+{
+  "name": "@monorepo/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'dev web'",
+    "build": "echo 'build web'",
+    "test": "echo 'test web'"
+  },
+  "dependencies": {
+    "@monorepo/ui": "file:../../packages/ui",
+    "@monorepo/utils": "file:../../packages/utils",
+    "@monorepo/config": "file:../../packages/config",
+    "axios": "^1.6.2"
+  }
+}

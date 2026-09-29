@@ -1,0 +1,16 @@
+{
+  "name": "@monorepo/admin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'dev admin'",
+    "build": "echo 'build admin'",
+    "test": "echo 'test admin'"
+  },
+  "dependencies": {
+    "@monorepo/ui": "file:../../packages/ui",
+    "@monorepo/utils": "file:../../packages/utils",
+    "@monorepo/config": "file:../../packages/config"
+  }
+}

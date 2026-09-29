@@ -1,0 +1,16 @@
+{
+  "name": "@monorepo/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'dev api'",
+    "build": "echo 'build api'",
+    "test": "echo 'test api'"
+  },
+  "dependencies": {
+    "@monorepo/utils": "file:../../packages/utils",
+    "@monorepo/config": "file:../../packages/config",
+    "fastify": "^4.25.2"
+  }
+}

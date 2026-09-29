@@ -6,7 +6,14 @@ results/
 benchmark/
 
 # Generated test projects (can be regenerated)
-projects/
+# But keep lockfiles for CI realism
+projects/*/node_modules/
+projects/*/.pnpm/
+projects/*/dist/
+projects/*/out/
+projects/*/built/
+projects/*/.next/
+projects/mass-generated/project-*/
 
 # Environment files
 .env

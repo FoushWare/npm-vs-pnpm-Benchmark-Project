@@ -28,12 +28,13 @@ for (let i = 1; i <= runs; i++) {
   
   const start = Date.now();
   try {
-    execSync('pnpm install', { cwd: projectPath, stdio: 'inherit' });
+    execSync('pnpm install --frozen-lockfile', { cwd: projectPath, stdio: 'inherit' });
     const duration = Date.now() - start;
     durations.push(duration);
     console.log(`✅ Run ${i}: ${duration}ms`);
   } catch (error) {
     console.log(`❌ Run ${i} failed: ${error.message}`);
+    throw error; // Fail fast in CI - real CI behavior
   }
 }
 
