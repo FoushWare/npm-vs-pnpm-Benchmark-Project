@@ -1,0 +1,58 @@
+# ============================================================================
+# Benchmark Comparison Workflow
+# ============================================================================
+# This workflow runs both npm and pnpm benchmarks and generates a comparison
+# showing differences in cold/warm scenarios across different application types.
+# ============================================================================
+
+name: Benchmark Comparison
+
+on:
+  workflow_dispatch:
+
+jobs:
+  npm-benchmark:
+    uses: ./.github/workflows/benchmark-npm.yml
+    secrets: inherit
+
+  pnpm-benchmark:
+    uses: ./.github/workflows/benchmark-pnpm.yml
+    secrets: inherit
+
+  compare:
+    needs: [npm-benchmark, pnpm-benchmark]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install benchmark dependencies
+      run: npm install
+
+    - name: Install pnpm
+      run: npm install -g pnpm
+
+    - name: Download all results
+      uses: actions/download-artifact@v4
+      with:
+        path: results/ci
+
+    - name: Merge all results to ci directory
+      run: |
+        mkdir -p results/ci
+        find results -name "*.json" -exec cp {} results/ci/ \; 2>/dev/null || true
+
+    - name: Display comprehensive comparison
+      run: node scripts/generate-ci-summary.js results/ci
+
+    - name: Upload comparison results
+      uses: actions/upload-artifact@v4
+      with:
+        name: comparison-results
+        path: results/ci/

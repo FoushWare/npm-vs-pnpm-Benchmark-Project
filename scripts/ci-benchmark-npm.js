@@ -42,8 +42,7 @@ for (let i = 1; i <= runs; i++) {
     console.log(`   ✅ Run ${i} completed in ${duration}ms`);
   } catch (error) {
     console.log(`   ❌ Run ${i} failed: ${error.message}`);
-    console.log(`   ⚠️  Continuing with next run...`);
-    // Don't throw error - allow benchmark to continue
+    throw error; // Fail fast in CI - real CI behavior
   }
 }
 
