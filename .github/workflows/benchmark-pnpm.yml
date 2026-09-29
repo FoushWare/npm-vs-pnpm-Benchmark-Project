@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        project: [small-app, medium-app, react-app, next-app, node-api, legacy-app, monorepo]
+        project: [small-app, medium-app, react-app, next-app, legacy-app, monorepo]
       fail-fast: false
 
     steps:

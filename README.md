@@ -89,9 +89,8 @@ Starts a local server at http://localhost:8080 with interactive charts.
 - `medium-app` - Vite + React + TypeScript
 - `react-app` - Production React/testing ecosystem
 - `next-app` - Next.js framework
-- `node-api` - Fastify + TypeScript
-- `monorepo` - Workspace-style multi-package application (pnpm only)
 - `legacy-app` - Older dependency patterns
+- `monorepo` - Workspace-style multi-package application (pnpm only)
 
 **Note:** The monorepo only works with pnpm due to workspace configuration limitations with npm.
 

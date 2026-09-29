@@ -31,7 +31,6 @@ const projectDescriptions = {
   'medium-app': 'Vite + React + TypeScript',
   'react-app': 'Production React/testing ecosystem',
   'next-app': 'Next.js framework',
-  'node-api': 'Fastify + TypeScript API',
   'legacy-app': 'Older dependency patterns',
   'monorepo': 'Workspace-style multi-package (pnpm only)'
 };

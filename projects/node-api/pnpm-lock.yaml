@@ -15,35 +15,35 @@ importers:
         specifier: ^7.2.4
         version: 7.2.4
       '@fastify/swagger':
-        specifier: ^8.12.0
+        specifier: ^8.15.0
         version: 8.15.0
       '@fastify/swagger-ui':
         specifier: ^2.1.0
         version: 2.1.0
       fastify:
-        specifier: ^4.25.2
+        specifier: ^4.29.1
         version: 4.29.1
       pino:
-        specifier: ^8.17.2
+        specifier: ^8.21.0
         version: 8.21.0
       pino-pretty:
         specifier: ^10.3.1
         version: 10.3.1
       zod:
-        specifier: ^3.22.4
+        specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
       '@types/node':
-        specifier: ^20.10.6
+        specifier: ^20.19.43
         version: 20.19.43
       eslint:
-        specifier: ^8.56.0
+        specifier: ^8.57.1
         version: 8.57.1
       typescript:
-        specifier: ^5.3.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: ^1.2.0
+        specifier: ^1.6.1
         version: 1.6.1(@types/node@20.19.43)
 
 packages:

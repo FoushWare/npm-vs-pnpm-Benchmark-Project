@@ -10,19 +10,19 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "fastify": "^4.25.2",
+    "fastify": "^4.29.1",
     "@fastify/cors": "^8.5.0",
     "@fastify/jwt": "^7.2.4",
-    "@fastify/swagger": "^8.12.0",
+    "@fastify/swagger": "^8.15.0",
     "@fastify/swagger-ui": "^2.1.0",
-    "zod": "^3.22.4",
-    "pino": "^8.17.2",
+    "zod": "^3.25.76",
+    "pino": "^8.21.0",
     "pino-pretty": "^10.3.1"
   },
   "devDependencies": {
-    "vitest": "^1.2.0",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "@types/node": "^20.10.6"
+    "vitest": "^1.6.1",
+    "eslint": "^8.57.1",
+    "typescript": "^5.9.3",
+    "@types/node": "^20.19.43"
   }
 }
