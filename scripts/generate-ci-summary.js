@@ -1,166 +1,149 @@
 #!/usr/bin/env node
 
-/**
- * CI Benchmark Summary Generator
- * 
- * This script generates a structured comparison summary from CI benchmark results,
- * displaying performance differences between npm and pnpm across projects and scenarios.
- */
+import { readFileSync, readdirSync } from 'fs';
+import { join } from 'path';
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const resultsDir = process.argv[2] || join(process.cwd(), 'results', 'ci');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+console.log('╔══════════════════════════════════════════════════════════════╗');
+console.log('║           🏆 FINAL BENCHMARK COMPARISON SUMMARY               ║');
+console.log('╚══════════════════════════════════════════════════════════════╝');
+console.log();
 
-const SCENARIOS = ['cold', 'warm', 'no-deps-changed'];
-const PROJECTS = ['small-app', 'medium-app', 'react-app', 'next-app', 'node-api', 'monorepo', 'legacy-app'];
+// Read all result files
+const files = readdirSync(resultsDir).filter(f => f.endsWith('.json'));
+const results = {};
 
-function loadResults(resultsDir) {
-  const results = {};
-  
-  for (const scenario of SCENARIOS) {
-    results[scenario] = {};
-    
-    for (const project of PROJECTS) {
-      for (const pm of ['npm', 'pnpm']) {
-        const resultFile = path.join(resultsDir, `${pm}-${project}-${scenario}.json`);
-        
-        if (fs.existsSync(resultFile)) {
-          try {
-            const data = JSON.parse(fs.readFileSync(resultFile, 'utf8'));
-            results[scenario][project] = results[scenario][project] || {};
-            results[scenario][project][pm] = data.duration_ms;
-          } catch (e) {
-            console.warn(`Failed to parse ${resultFile}:`, e.message);
-          }
-        }
-      }
-    }
+files.forEach(file => {
+  try {
+    const data = JSON.parse(readFileSync(join(resultsDir, file), 'utf8'));
+    const key = `${data.packageManager}-${data.project}-${data.scenario}`;
+    results[key] = data;
+  } catch (error) {
+    // Skip invalid files
   }
-  
-  return results;
-}
+});
 
-function generateComparison(results) {
-  let summary = '';
-  
-  summary += '════════════════════════════════════════════════════════════\n';
-  summary += '📊 CI BENCHMARK COMPARISON SUMMARY\n';
-  summary += '════════════════════════════════════════════════════════════\n';
-  summary += '\n';
-  
-  for (const scenario of SCENARIOS) {
-    const scenarioResults = results[scenario];
-    if (!scenarioResults || Object.keys(scenarioResults).length === 0) continue;
-    
-    summary += `### Scenario: ${scenario}\n`;
-    summary += '\n';
-    summary += '| Project | npm (ms) | pnpm (ms) | Speedup | % Faster | Time Saved |\n';
-    summary += '|---------|----------|-----------|---------|----------|------------|\n';
-    
-    for (const project of PROJECTS) {
-      const projectResults = scenarioResults[project];
-      if (!projectResults) continue;
-      
-      const npmTime = projectResults.npm;
-      const pnpmTime = projectResults.pnpm;
-      
-      if (npmTime && pnpmTime && pnpmTime > 0) {
-        const speedup = (npmTime / pnpmTime).toFixed(1);
-        const percentFaster = ((1 - pnpmTime / npmTime) * 100).toFixed(1);
-        const timeSaved = (npmTime - pnpmTime).toFixed(0);
-        
-        summary += `| ${project} | ${npmTime} | ${pnpmTime} | ${speedup}x | ${percentFaster}% | ${timeSaved}ms |\n`;
-      }
-    }
-    
-    summary += '\n';
-  }
-  
-  // Calculate overall statistics
-  let totalNpm = 0;
-  let totalPnpm = 0;
-  let count = 0;
-  
-  for (const scenario of SCENARIOS) {
-    for (const project of PROJECTS) {
-      const npmTime = results[scenario]?.[project]?.npm;
-      const pnpmTime = results[scenario]?.[project]?.pnpm;
-      
-      if (npmTime && pnpmTime && pnpmTime > 0) {
-        totalNpm += npmTime;
-        totalPnpm += pnpmTime;
-        count++;
-      }
-    }
-  }
-  
-  if (count > 0) {
-    const avgNpm = (totalNpm / count).toFixed(0);
-    const avgPnpm = (totalPnpm / count).toFixed(0);
-    const overallSpeedup = (totalNpm / totalPnpm).toFixed(1);
-    const overallPercentFaster = ((1 - totalPnpm / totalNpm) * 100).toFixed(1);
-    
-    summary += '### Overall Statistics\n';
-    summary += '\n';
-    summary += `- **Average npm time:** ${avgNpm}ms\n`;
-    summary += `- **Average pnpm time:** ${avgPnpm}ms\n`;
-    summary += `- **Overall speedup:** ${overallSpeedup}x\n`;
-    summary += `- **Overall % faster:** ${overallPercentFaster}%\n`;
-    summary += `- **Total time saved:** ${(totalNpm - totalPnpm).toFixed(0)}ms across ${count} benchmarks\n`;
-    summary += '\n';
-    
-    // Add conclusion
-    summary += '### Conclusion\n';
-    summary += '\n';
-    if (parseFloat(overallSpeedup) > 2) {
-      summary += '✅ **SIGNIFICANT ADVANTAGE: pnpm**\n';
-      summary += `pnpm showed ${overallSpeedup}x faster performance overall (${overallPercentFaster}% faster).\n`;
-      summary += 'This suggests pnpm\'s content-addressable storage is providing substantial benefits in the CI environment.\n';
-    } else if (parseFloat(overallSpeedup) > 1.2) {
-      summary += '⚡ **MODERATE ADVANTAGE: pnpm**\n';
-      summary += `pnpm showed ${overallSpeedup}x faster performance overall (${overallPercentFaster}% faster).\n`;
-      summary += 'pnpm\'s advantages are present but may depend on specific scenarios.\n';
-    } else if (parseFloat(overallSpeedup) > 1) {
-      summary += '📊 **SLIGHT ADVANTAGE: pnpm**\n';
-      summary += `pnpm showed ${overallSpeedup}x faster performance overall (${overallPercentFaster}% faster).\n`;
-      summary += 'The difference is minimal. Consider other factors like disk space and team preference.\n';
+// Group by project
+const projects = [...new Set(Object.values(results).map(r => r.project))];
+
+projects.forEach(project => {
+  console.log(`� Project: ${project}`);
+  console.log('═══════════════════════════════════════════════════════════════');
+
+  const npmCold = results[`npm-${project}-cold`];
+  const npmWarm = results[`npm-${project}-warm`];
+  const pnpmCold = results[`pnpm-${project}-cold`];
+  const pnpmWarm = results[`pnpm-${project}-warm`];
+
+  if (npmCold && pnpmCold) {
+    console.log('❄️  COLD INSTALL:');
+    console.log(`   npm:   ${npmCold.durationMs.toFixed(0)}ms`);
+    console.log(`   pnpm: ${pnpmCold.durationMs.toFixed(0)}ms`);
+
+    const diff = npmCold.durationMs - pnpmCold.durationMs;
+    const faster = ((1 - pnpmCold.durationMs / npmCold.durationMs) * 100).toFixed(1);
+
+    if (diff > 0) {
+      console.log(`   🚀 pnpm is ${faster}% faster`);
     } else {
-      summary += '⚠️ **NO CLEAR ADVANTAGE**\n';
-      summary += 'Performance was similar between npm and pnpm in this CI test.\n';
-      summary += 'This could be due to cache state or project-specific factors.\n';
+      console.log(`   🚀 npm is ${Math.abs(faster)}% faster`);
     }
+
+    // Visual comparison
+    const maxTime = Math.max(npmCold.durationMs, pnpmCold.durationMs);
+    const npmBar = '█'.repeat(Math.round((npmCold.durationMs / maxTime) * 30));
+    const pnpmBar = '█'.repeat(Math.round((pnpmCold.durationMs / maxTime) * 30));
+    const npmSpaces = ' '.repeat(30 - Math.round((npmCold.durationMs / maxTime) * 30));
+    const pnpmSpaces = ' '.repeat(30 - Math.round((pnpmCold.durationMs / maxTime) * 30));
+
+    console.log(`   npm:   [${npmBar}${npmSpaces}] ${npmCold.durationMs.toFixed(0)}ms`);
+    console.log(`   pnpm: [${pnpmBar}${pnpmSpaces}] ${pnpmCold.durationMs.toFixed(0)}ms`);
   }
-  
-  summary += '\n';
-  summary += '════════════════════════════════════════════════════════════\n';
-  summary += '💡 Context matters: Results vary by cache state, project size,\n';
-  summary += '   network conditions, and workflow patterns. Test multiple\n';
-  summary += '   scenarios to get a complete picture for your use case.\n';
-  summary += '════════════════════════════════════════════════════════════\n';
-  
-  return summary;
+
+  if (npmWarm && pnpmWarm) {
+    console.log();
+    console.log('🔥 WARM CACHE:');
+    console.log(`   npm:   ${npmWarm.durationMs.toFixed(0)}ms`);
+    console.log(`   pnpm: ${pnpmWarm.durationMs.toFixed(0)}ms`);
+
+    const diff = npmWarm.durationMs - pnpmWarm.durationMs;
+    const faster = ((1 - pnpmWarm.durationMs / npmWarm.durationMs) * 100).toFixed(1);
+
+    if (diff > 0) {
+      console.log(`   🚀 pnpm is ${faster}% faster`);
+    } else {
+      console.log(`   🚀 npm is ${Math.abs(faster)}% faster`);
+    }
+
+    // Visual comparison
+    const maxTime = Math.max(npmWarm.durationMs, pnpmWarm.durationMs);
+    const npmBar = '█'.repeat(Math.round((npmWarm.durationMs / maxTime) * 30));
+    const pnpmBar = '█'.repeat(Math.round((pnpmWarm.durationMs / maxTime) * 30));
+    const npmSpaces = ' '.repeat(30 - Math.round((npmWarm.durationMs / maxTime) * 30));
+    const pnpmSpaces = ' '.repeat(30 - Math.round((pnpmWarm.durationMs / maxTime) * 30));
+
+    console.log(`   npm:   [${npmBar}${npmSpaces}] ${npmWarm.durationMs.toFixed(0)}ms`);
+    console.log(`   pnpm: [${pnpmBar}${pnpmSpaces}] ${pnpmWarm.durationMs.toFixed(0)}ms`);
+  }
+
+  console.log();
+});
+
+// Overall summary
+console.log('═══════════════════════════════════════════════════════════════');
+console.log('🏆 OVERALL SUMMARY');
+console.log('═══════════════════════════════════════════════════════════════');
+
+let npmColdTotal = 0;
+let pnpmColdTotal = 0;
+let npmWarmTotal = 0;
+let pnpmWarmTotal = 0;
+let npmColdCount = 0;
+let pnpmColdCount = 0;
+let npmWarmCount = 0;
+let pnpmWarmCount = 0;
+
+Object.values(results).forEach(result => {
+  if (result.packageManager === 'npm' && result.scenario === 'cold') {
+    npmColdTotal += result.durationMs;
+    npmColdCount++;
+  } else if (result.packageManager === 'pnpm' && result.scenario === 'cold') {
+    pnpmColdTotal += result.durationMs;
+    pnpmColdCount++;
+  } else if (result.packageManager === 'npm' && result.scenario === 'warm') {
+    npmWarmTotal += result.durationMs;
+    npmWarmCount++;
+  } else if (result.packageManager === 'pnpm' && result.scenario === 'warm') {
+    pnpmWarmTotal += result.durationMs;
+    pnpmWarmCount++;
+  }
+});
+
+if (npmColdCount > 0 && pnpmColdCount > 0) {
+  const npmColdAvg = npmColdTotal / npmColdCount;
+  const pnpmColdAvg = pnpmColdTotal / pnpmColdCount;
+  const coldFaster = ((1 - pnpmColdAvg / npmColdAvg) * 100).toFixed(1);
+
+  console.log(`❄️  COLD INSTALL (Average):`);
+  console.log(`   npm:   ${npmColdAvg.toFixed(0)}ms`);
+  console.log(`   pnpm: ${pnpmColdAvg.toFixed(0)}ms`);
+  console.log(`   🚀 pnpm is ${coldFaster}% faster on average`);
 }
 
-function main() {
-  const resultsDir = process.argv[2] || 'results/ci';
-  
-  if (!fs.existsSync(resultsDir)) {
-    console.error(`Results directory not found: ${resultsDir}`);
-    process.exit(1);
-  }
-  
-  const results = loadResults(resultsDir);
-  const summary = generateComparison(results);
-  
-  console.log(summary);
-  
-  // Also write to file for GitHub Actions to pick up
-  const summaryFile = path.join(resultsDir, 'comparison-summary.txt');
-  fs.writeFileSync(summaryFile, summary);
-  console.log(`\nSummary saved to: ${summaryFile}`);
+if (npmWarmCount > 0 && pnpmWarmCount > 0) {
+  const npmWarmAvg = npmWarmTotal / npmWarmCount;
+  const pnpmWarmAvg = pnpmWarmTotal / pnpmWarmCount;
+  const warmFaster = ((1 - pnpmWarmAvg / npmWarmAvg) * 100).toFixed(1);
+
+  console.log();
+  console.log(`🔥 WARM CACHE (Average):`);
+  console.log(`   npm:   ${npmWarmAvg.toFixed(0)}ms`);
+  console.log(`   pnpm: ${pnpmWarmAvg.toFixed(0)}ms`);
+  console.log(`   🚀 pnpm is ${warmFaster}% faster on average`);
 }
 
-main();
+console.log();
+console.log('═══════════════════════════════════════════════════════════════');
+console.log('✅ Benchmark Complete');
+console.log('═══════════════════════════════════════════════════════════════');

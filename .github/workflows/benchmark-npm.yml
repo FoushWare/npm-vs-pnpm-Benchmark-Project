@@ -59,3 +59,18 @@ jobs:
       with:
         name: npm-results-${{ matrix.project }}
         path: results/ci/
+
+    - name: Display results summary
+      run: |
+        echo "╔══════════════════════════════════════════════════════════════╗"
+        echo "║           📦 npm Benchmark Results for ${{ matrix.project }}         ║"
+        echo "╚══════════════════════════════════════════════════════════════╝"
+        if [ -f results/ci/npm-${{ matrix.project }}-cold.json ]; then
+          echo "❄️  COLD INSTALL:"
+          cat results/ci/npm-${{ matrix.project }}-cold.json
+        fi
+        if [ -f results/ci/npm-${{ matrix.project }}-warm.json ]; then
+          echo ""
+          echo "🔥 WARM CACHE:"
+          cat results/ci/npm-${{ matrix.project }}-warm.json
+        fi

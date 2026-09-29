@@ -61,3 +61,6 @@ jobs:
       with:
         name: comparison-charts
         path: results/charts/
+
+    - name: Display final comparison summary
+      run: node scripts/generate-ci-summary.js results/ci

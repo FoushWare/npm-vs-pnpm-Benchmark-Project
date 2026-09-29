@@ -64,3 +64,18 @@ jobs:
       with:
         name: pnpm-results-${{ matrix.project }}
         path: results/ci/
+
+    - name: Display results summary
+      run: |
+        echo "╔══════════════════════════════════════════════════════════════╗"
+        echo "║           📦 pnpm Benchmark Results for ${{ matrix.project }}        ║"
+        echo "╚══════════════════════════════════════════════════════════════╝"
+        if [ -f results/ci/pnpm-${{ matrix.project }}-cold.json ]; then
+          echo "❄️  COLD INSTALL:"
+          cat results/ci/pnpm-${{ matrix.project }}-cold.json
+        fi
+        if [ -f results/ci/pnpm-${{ matrix.project }}-warm.json ]; then
+          echo ""
+          echo "🔥 WARM CACHE:"
+          cat results/ci/pnpm-${{ matrix.project }}-warm.json
+        fi
