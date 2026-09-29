@@ -53,11 +53,13 @@
     "chalk": "^5.3.0",
     "ora": "^8.0.1",
     "commander": "^12.0.0",
-    "chart.js": "^3.9.1",
-    "chartjs-node-canvas": "^4.1.6",
     "fast-glob": "^3.3.2",
     "execa": "^8.0.1",
     "fs-extra": "^11.2.0"
+  },
+  "optionalDependencies": {
+    "chart.js": "^3.9.1",
+    "chartjs-node-canvas": "^4.1.6"
   },
   "devDependencies": {
     "vitest": "^1.2.0"
