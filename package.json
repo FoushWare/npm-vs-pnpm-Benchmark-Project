@@ -4,7 +4,7 @@
   "description": "Benchmark scripts comparing npm vs pnpm performance",
   "type": "module",
   "engines": {
-    "node": ">=22.21.1"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "benchmark": "node scripts/benchmark.js",

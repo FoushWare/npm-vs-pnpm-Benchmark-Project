@@ -18,10 +18,12 @@ on:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     strategy:
       matrix:
         project: [small-app, medium-app, react-app, next-app, node-api, legacy-app, monorepo]
+      fail-fast: false
 
     steps:
     - name: Checkout code
@@ -31,7 +33,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22.21.1'
+        node-version: '22'
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v2

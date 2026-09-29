@@ -10,7 +10,7 @@ npm install
 
 ## System Requirements
 
-- Node.js >= 22.21.1
+- Node.js >= 22.0.0
 - npm >= 9.0.0
 - pnpm >= 8.0.0
 - 8GB RAM minimum
