@@ -10,6 +10,7 @@ name: npm Benchmark
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   benchmark:

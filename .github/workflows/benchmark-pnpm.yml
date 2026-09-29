@@ -10,6 +10,7 @@ name: pnpm Benchmark
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   benchmark:
