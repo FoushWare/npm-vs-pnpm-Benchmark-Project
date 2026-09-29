@@ -27,15 +27,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Real CI: Use npm cache with proper key based on lockfile
+    # Real CI: Setup Node.js without cache (we test cold/warm explicitly)
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '22.21.1'
-        cache: 'npm'
 
     - name: Install benchmark dependencies
-      run: npm install
+      run: npm ci
 
     - name: Install pnpm (for comparison workflow)
       run: npm install -g pnpm
