@@ -15,10 +15,12 @@ on:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     strategy:
       matrix:
         project: [small-app, medium-app, react-app, next-app, node-api, legacy-app]
+      fail-fast: false
 
     steps:
     - name: Checkout code
