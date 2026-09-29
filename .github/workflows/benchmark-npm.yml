@@ -1,9 +1,9 @@
 # ============================================================================
 # npm Benchmark Workflow
 # ============================================================================
-# This workflow benchmarks npm performance under fair conditions for comparison
-# with pnpm. Tests both cold and warm scenarios in the same job to simulate
-# local cache behavior.
+# This workflow benchmarks npm performance using real-world CI practices.
+# Uses npm ci for deterministic production installs. Tests both cold and warm
+# scenarios with proper error handling (fail-fast as real CI does).
 # ============================================================================
 
 name: npm Benchmark
@@ -18,46 +18,43 @@ on:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         project: [small-app, medium-app, react-app, next-app, node-api, legacy-app]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
-    # Fair comparison: Both workflows use the same Node.js version
+
+    # Real CI: Use npm cache with proper key based on lockfile
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '22.21.1'
-        cache: 'npm'  # npm's native caching strategy
-    
+        cache: 'npm'
+
     - name: Install benchmark dependencies
       run: npm install
-    
+
     - name: Install pnpm (for comparison workflow)
       run: npm install -g pnpm
-    
-    # Fair comparison: Clean all caches and node_modules for cold test
+
+    # Real CI: Clean all caches and node_modules for cold test
     - name: Clean everything
       run: |
-        npm cache clean --force || true
+        npm cache clean --force
         pnpm store prune || true
-        rm -rf projects/*/node_modules projects/*/package-lock.json projects/*/.pnpm
-      continue-on-error: true
-    
-    # Fair comparison: Cold scenario tests fresh installation with no cache
+        rm -rf projects/*/node_modules projects/*/.pnpm
+
+    # Real CI: Cold scenario tests fresh installation with no cache
     - name: Cold CI scenario
       run: npm run ci:benchmark:npm ${{ matrix.project }} cold 1
-      continue-on-error: true
-    
-    # Fair comparison: Warm scenario tests installation with cache (same job)
+
+    # Real CI: Warm scenario tests installation with cache (same job)
     - name: Warm CI scenario
       run: npm run ci:benchmark:npm ${{ matrix.project }} warm 1
-      continue-on-error: true
-    
+
     - name: Upload results
       uses: actions/upload-artifact@v4
       with:

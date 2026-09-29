@@ -36,6 +36,7 @@
     "benchmark:all:cold": "node scripts/benchmark-all-cold.js",
     "benchmark:all:warm": "node scripts/benchmark-all-warm.js",
     "benchmark:all": "node scripts/benchmark-all.js",
+    "benchmark:all:low-memory": "node scripts/benchmark-all.js --low-memory",
     "ci:benchmark:npm": "node scripts/ci-benchmark-npm.js",
     "ci:benchmark:pnpm": "node scripts/ci-benchmark-pnpm.js"
   },

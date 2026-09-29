@@ -15,6 +15,7 @@ npm install
 - pnpm >= 8.0.0
 - 8GB RAM minimum
 - 16GB RAM recommended for full benchmarks
+- **For filming with OBS:** Use low-memory mode to reduce RAM usage
 
 ## Benchmark Steps
 
@@ -23,6 +24,18 @@ npm install
 npm run benchmark:all
 ```
 Runs all benchmarks for all projects and launches live charts.
+
+### Low Memory Mode (For Filming with OBS)
+```bash
+npm run benchmark:all:low-memory
+```
+Runs benchmarks with reduced memory usage:
+- 1 run per project instead of 3
+- Tests only 3 projects (small-app, medium-app, react-app) instead of 6
+- Includes memory cleanup between operations
+- Still launches live charts for demonstration
+
+**Use this when filming with OBS to prevent RAM exhaustion.**
 
 ### Step 1: Clean Everything
 ```bash
@@ -88,6 +101,9 @@ Starts a local server at http://localhost:8080 with interactive charts.
 # Run all benchmarks (cold, warm, disk, charts)
 npm run benchmark:all
 
+# Run all benchmarks in low-memory mode (for filming with OBS)
+npm run benchmark:all:low-memory
+
 # Run cold install for all projects
 npm run benchmark:all:cold
 
@@ -128,6 +144,24 @@ Each benchmark shows:
 - Disk usage
 - Comparison with other package manager (if tested)
 - Visual bar charts in terminal
+
+## Memory Optimization Tips
+
+When filming with OBS or running on memory-constrained systems:
+
+1. **Use low-memory mode:** `npm run benchmark:all:low-memory`
+   - Reduces runs from 3 to 1 per project
+   - Tests only 3 projects instead of 6
+   - Includes memory cleanup between operations
+
+2. **Run Node.js with garbage collection enabled:**
+   ```bash
+   node --expose-gc scripts/benchmark-all.js --low-memory
+   ```
+
+3. **Close unnecessary applications** while running benchmarks
+
+4. **Monitor memory usage** with Activity Monitor (macOS) or Task Manager (Windows)
 
 ## License
 

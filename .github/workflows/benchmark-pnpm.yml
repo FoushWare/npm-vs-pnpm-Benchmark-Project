@@ -1,9 +1,9 @@
 # ============================================================================
 # pnpm Benchmark Workflow
 # ============================================================================
-# This workflow benchmarks pnpm performance under fair conditions for comparison
-# with npm. Tests both cold and warm scenarios in the same job to simulate
-# local cache behavior.
+# This workflow benchmarks pnpm performance using real-world CI practices.
+# Uses pnpm install --frozen-lockfile for deterministic production installs.
+# Tests both cold and warm scenarios with proper error handling (fail-fast).
 # ============================================================================
 
 name: pnpm Benchmark
@@ -18,33 +18,33 @@ on:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         project: [small-app, medium-app, react-app, next-app, node-api, legacy-app, monorepo]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
-    # Fair comparison: Both workflows use the same Node.js version
+
+    # Real CI: Setup Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '22.21.1'
-    
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v2
       with:
         version: 8
-    
-    # Fair comparison: pnpm's native caching strategy (equivalent to npm cache)
+
+    # Real CI: pnpm's native caching strategy with proper key based on lockfile
     - name: Get pnpm store directory
       id: pnpm-cache
       shell: bash
       run: |
         echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-    
+
     - name: Setup pnpm cache
       uses: actions/cache@v3
       with:
@@ -52,31 +52,28 @@ jobs:
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
-    
+
     - name: Install benchmark dependencies
       run: npm install
-    
+
     - name: Install pnpm (for benchmark scripts)
       run: npm install -g pnpm
-    
-    # Fair comparison: Clean all caches and node_modules for cold test
+
+    # Real CI: Clean all caches and node_modules for cold test
     - name: Clean everything
       run: |
-        npm cache clean --force || true
-        pnpm store prune || true
-        rm -rf projects/*/node_modules projects/*/package-lock.json projects/*/pnpm-lock.yaml projects/*/.pnpm
-      continue-on-error: true
-    
-    # Fair comparison: Cold scenario tests fresh installation with no cache
+        npm cache clean --force
+        pnpm store prune
+        rm -rf projects/*/node_modules projects/*/.pnpm
+
+    # Real CI: Cold scenario tests fresh installation with no cache
     - name: Cold CI scenario
       run: npm run ci:benchmark:pnpm ${{ matrix.project }} cold 1
-      continue-on-error: true
-    
-    # Fair comparison: Warm scenario tests installation with cache (same job)
+
+    # Real CI: Warm scenario tests installation with cache (same job)
     - name: Warm CI scenario
       run: npm run ci:benchmark:pnpm ${{ matrix.project }} warm 1
-      continue-on-error: true
-    
+
     - name: Upload results
       uses: actions/upload-artifact@v4
       with:
